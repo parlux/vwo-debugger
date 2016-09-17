@@ -1,18 +1,23 @@
 {
-    "name": "DevToolsPanel",
-    "version": "0.1",
-    "description": "A bare-bones example of communication between devtools and an inspected page",
-    "devtools_page": "devtools.html",
-    "background": {
-        "scripts": [
-            "background.js"
-        ]
-    },
-    "permissions": [
-        "tabs", 
-        "http://*/*",
-        "https://*/*",
-        "webNavigation"
-    ],
-    "manifest_version": 2
+  "name": "VWO debugger",
+  "version": "0.1",
+  "description": "Go debug yourself some VWO campaigns",
+  "devtools_page": "devtools.html",
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "permissions": [
+    "tabs",
+    "http://*/*",
+    "https://*/*",
+    "webNavigation"
+  ],
+  "manifest_version": 2,
+  "icons": {
+    "16": "vwo-logo.png",
+    "48": "vwo-logo.png",
+    "128": "vwo-logo.png"
+  }
 }
