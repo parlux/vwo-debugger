@@ -10,8 +10,12 @@
     <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ghmgjieagdmniefpdggdflfjlhipemje">
 </head>
 <body>
-<button onclick="chrome.webstore.install()" id="install-button">Add to Chrome</button>
+<button id="install-button">Add to Chrome</button>
 <script>
+    document.querySelector('#install-button').addEventListener('click', function() {
+        chrome.webstore.install()
+    })
+
     if (chrome.app.isInstalled) {
         document.getElementById('install-button').style.display = 'none';
     }
