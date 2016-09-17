@@ -35,7 +35,7 @@ chrome.devtools.network.onRequestFinished.addListener(function (request) {
 
 function getVWOExp() {
   return new Promise((resolve, reject) => {
-    chrome.devtools.inspectedWindow.eval("_vwo_exp", function(result, isException) {
+    chrome.devtools.inspectedWindow.eval("_vwo_exp", function (result, isException) {
       if (isException) reject()
 
       // This needs to be grouped under the experiment
@@ -92,8 +92,36 @@ function getUrl() {
     chrome.devtools.inspectedWindow.eval("window.location.href", (result, isException) => {
       if (isException) reject()
 
-      extras.url = result
+      extras.currentUrl = result
       resolve(result)
+    })
+  })
+}
+
+function getAllSegments() {
+  return new Promise((resolve, reject) => {
+
+    const promises = []
+    for (const expId in experiments) {
+      const experiment = experiments[expId]
+      promises.push(getSegment(experiment.segmentCode, expId))
+    }
+
+    Promise.all(promises).then(values => {
+      values.forEach(result => {
+        experiments[result.expId].segmentMatch = result.segmentMatch
+      })
+      resolve()
+    })
+  })
+}
+
+function getSegment(code, expId) {
+  return new Promise((resolve, reject) => {
+    chrome.devtools.inspectedWindow.eval(code, (result, isException) => {
+      if (isException) reject()
+
+      resolve({expId: expId, segmentMatch: result})
     })
   })
 }
@@ -104,7 +132,8 @@ function run() {
   getVWOExp()
     .then(getVWOCookies)
     .then(getUrl)
-    .then(currentUrl => {
+    .then(getAllSegments)
+    .then(() => {
       document.querySelector('#foo').innerHTML = ''
 
       for (const expId in experiments) {
@@ -113,12 +142,16 @@ function run() {
         const inExperiment = experiment.combination ? 'yes' : 'no'
         const conversions = `[ ${experiment.conversions.join(', ')} ]`
         const goals = `[ ${Object.keys(experiment.goals).join(', ')} ]`
-        const validUrl = currentUrl.match(experiment.urlRegex) && !currentUrl.match(experiment.urlExclude) ? 'yep' : 'nope'
+        const validUrl = extras.currentUrl.match(experiment.urlRegex) && !extras.currentUrl.match(experiment.urlExclude) ? 'yep' : 'nope'
         document.querySelector('#foo').innerHTML += `
           <h4 title="id=${expId}">Name: ${experiment.name}</h4>
           <dl>
             <dt>segment criteria</dt>
-            <dd>${experiment.segmentCode} - (TODO match on this)</dd>
+            <dd>${experiment.segmentCode}</dd>
+          </dl>
+          <dl class="${experiment.segmentMatch}">
+            <dt>are you in the segment?</dt>
+            <dd>${experiment.segmentMatch}</dd>
           </dl>
           <dl class="${inExperiment}">
             <dt>are you in the experiment?</dt>
