@@ -22,6 +22,7 @@ function clearVWOCookies() {
 
 
 let experiments = {}
+let extras = {}
 
 // Run when conversion happens
 chrome.devtools.network.onRequestFinished.addListener(function (request) {
@@ -46,9 +47,9 @@ function getVWOExp() {
           experiments[expId].name = exp.name
           experiments[expId].goals = exp.goals
           experiments[expId].combinations = exp.comb_n
-          experiments[expId].activePage = exp.combination_chosen ? true : false
           experiments[expId].segmentCode = exp.segment_code
-          experiments[expId].segmentEligible = exp.segment_eligble
+          experiments[expId].urlRegex = exp.urlRegex
+          experiments[expId].urlExclude = exp.exclude_url
         }
       }
 
@@ -86,40 +87,61 @@ function getVWOCookies() {
   })
 }
 
+function getUrl() {
+  return new Promise((resolve, reject) => {
+    chrome.devtools.inspectedWindow.eval("window.location.href", (result, isException) => {
+      if (isException) reject()
+
+      extras.url = result
+      resolve(result)
+    })
+  })
+}
+
 function run() {
+  extras = {}
   experiments = {}
   getVWOExp()
     .then(getVWOCookies)
-    .then(() => {
+    .then(getUrl)
+    .then(currentUrl => {
       document.querySelector('#foo').innerHTML = ''
 
       for (const expId in experiments) {
         const experiment = experiments[expId]
-        const variation = experiment.combination ? experiment.combination : 'boo'
-        let conversions = '<ul>'
-        experiment.conversions.forEach(conversion => {
-          conversions += `<li>${conversion}</li>`
-        })
-        conversions += '</ul>'
-        let goals = '<ul>'
-        for (goal in experiment.goals) {
-          goals += `<li>${goal}</li>`
-        }
-        goals += '</ul>'
-        const runningOnPage = experiment.activePage && experiment.segmentEligible ? true : false
-        const inSegment = experiment.segmentEligible ? true : false
+        const variation = experiment.combination ? experiment.combination : 'you\'re not part of test'
+        const inExperiment = experiment.combination ? 'yes' : 'no'
+        const conversions = `[ ${experiment.conversions.join(', ')} ]`
+        const goals = `[ ${Object.keys(experiment.goals).join(', ')} ]`
+        const validUrl = currentUrl.match(experiment.urlRegex) && !currentUrl.match(experiment.urlExclude) ? 'yep' : 'nope'
         document.querySelector('#foo').innerHTML += `
           <h4 title="id=${expId}">Name: ${experiment.name}</h4>
-          <p>segment: ${experiment.segmentCode}</p>
-          <p>in segment: ${inSegment}</p>
-          <p>page is part of test: ${experiment.activePage}</p>
-          <p>running on this page: ${runningOnPage}</p>
-          <p>variation: ${variation}</p>
-          <p>goals: ${goals}</p>
-          <p>conversions: ${conversions}</p>
+          <dl>
+            <dt>segment criteria</dt>
+            <dd>${experiment.segmentCode} - (TODO match on this)</dd>
+          </dl>
+          <dl class="${inExperiment}">
+            <dt>are you in the experiment?</dt>
+            <dd>${inExperiment}</dd>
+          </dl>
+          <dl class="${validUrl}">
+            <dt>is this url part of the experiment?</dt>
+            <dd>${validUrl}</dd>
+          </dl>
+          <dl>
+            <dt>variation</dt>
+            <dd>${variation}</dd>
+          </dl>
+          <dl>
+            <dt>experiment goals</dt>
+            <dd>${goals}</dd>
+          </dl>
+          <dl>
+            <dt>your conversions</dt>
+            <dd>${conversions}</dd>
+          </dl>
         `
       }
-      // utils.log(experiments)
     })
 }
 
