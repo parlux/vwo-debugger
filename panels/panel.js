@@ -47,6 +47,8 @@ function getVWOExp() {
           experiments[expId].goals = exp.goals
           experiments[expId].combinations = exp.comb_n
           experiments[expId].activePage = exp.combination_chosen ? true : false
+          experiments[expId].segmentCode = exp.segment_code
+          experiments[expId].segmentEligible = exp.segment_eligble
         }
       }
 
@@ -89,7 +91,35 @@ function run() {
   getVWOExp()
     .then(getVWOCookies)
     .then(() => {
-      utils.log(experiments)
+      document.querySelector('#foo').innerHTML = ''
+
+      for (const expId in experiments) {
+        const experiment = experiments[expId]
+        const variation = experiment.combination ? experiment.combination : 'boo'
+        let conversions = '<ul>'
+        experiment.conversions.forEach(conversion => {
+          conversions += `<li>${conversion}</li>`
+        })
+        conversions += '</ul>'
+        let goals = '<ul>'
+        for (goal in experiment.goals) {
+          goals += `<li>${goal}</li>`
+        }
+        goals += '</ul>'
+        const runningOnPage = experiment.activePage && experiment.segmentEligible ? true : false
+        const inSegment = experiment.segmentEligible ? true : false
+        document.querySelector('#foo').innerHTML += `
+          <h4 title="id=${expId}">Name: ${experiment.name}</h4>
+          <p>segment: ${experiment.segmentCode}</p>
+          <p>in segment: ${inSegment}</p>
+          <p>page is part of test: ${experiment.activePage}</p>
+          <p>running on this page: ${runningOnPage}</p>
+          <p>variation: ${variation}</p>
+          <p>goals: ${goals}</p>
+          <p>conversions: ${conversions}</p>
+        `
+      }
+      // utils.log(experiments)
     })
 }
 
