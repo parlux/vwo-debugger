@@ -142,7 +142,7 @@ function run() {
         const inExperiment = experiment.combination ? 'yes' : 'no'
         const conversions = `[ ${experiment.conversions.join(', ')} ]`
         const goals = `[ ${Object.keys(experiment.goals).join(', ')} ]`
-        const validUrl = extras.currentUrl.match(experiment.urlRegex) && !extras.currentUrl.match(experiment.urlExclude) ? 'yep' : 'nope'
+        const validUrl = extras.currentUrl.replace(/www\./, '').match(experiment.urlRegex) && !extras.currentUrl.match(experiment.urlExclude) ? 'yep' : 'nope'
         document.querySelector('#foo').innerHTML += `
           <h4 title="id=${expId}">Name: ${experiment.name}</h4>
           <dl>
