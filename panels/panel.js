@@ -34,15 +34,17 @@ chrome.devtools.network.onRequestFinished.addListener(function (request) {
 })
 
 function getVWOExp() {
+  utils.log('get vwo experiment')
   return new Promise((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval("_vwo_exp", function (result, isException) {
       if (isException) reject()
 
-      // This needs to be grouped under the experiment
-      for (expId in result) {
+      utils.log(`result: ${result}`)
+      for (var expId in result) {
+        utils.log(result)
         experiments[expId] = {}
 
-        for (var expId in result) {
+        for (var expId2 in result) {
           var exp = result[expId]
           experiments[expId].name = exp.name
           experiments[expId].goals = exp.goals
@@ -59,6 +61,7 @@ function getVWOExp() {
 }
 
 function getVWOCookies() {
+  utils.log('get vwo cookies')
   return new Promise((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval("document.cookie", (result, isException) => {
       if (isException) reject()
@@ -88,6 +91,7 @@ function getVWOCookies() {
 }
 
 function getUrl() {
+  utils.log('get url')
   return new Promise((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval("window.location.href", (result, isException) => {
       if (isException) reject()
@@ -99,6 +103,7 @@ function getUrl() {
 }
 
 function getAllSegments() {
+  utils.log('get all segments')
   return new Promise((resolve, reject) => {
 
     const promises = []
@@ -117,6 +122,7 @@ function getAllSegments() {
 }
 
 function getSegment(code, expId) {
+  utils.log('get segment')
   return new Promise((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(code, (result, isException) => {
       if (isException) reject()
@@ -129,6 +135,7 @@ function getSegment(code, expId) {
 function run() {
   extras = {}
   experiments = {}
+  utils.log('run start')
   getVWOExp()
     .then(getVWOCookies)
     .then(getUrl)
@@ -136,13 +143,23 @@ function run() {
     .then(() => {
       document.querySelector('#foo').innerHTML = ''
 
+      utils.log('foobar')
+
       for (const expId in experiments) {
         const experiment = experiments[expId]
         const variation = experiment.combination ? experiment.combination : 'you\'re not part of test'
         const inExperiment = experiment.combination ? 'yes' : 'no'
         const conversions = `[ ${experiment.conversions.join(', ')} ]`
         const goals = `[ ${Object.keys(experiment.goals).join(', ')} ]`
-        const validUrl = extras.currentUrl.replace(/www\./, '').match(experiment.urlRegex) && !extras.currentUrl.match(experiment.urlExclude) ? 'yep' : 'nope'
+        let validUrl = false
+        let currentUrl = extras.currentUrl
+        if (extras.currentUrl[extras.currentUrl.length - 1] === '/') {
+          currentUrl = extras.currentUrl.substr(0, extras.currentUrl.length - 1)
+        }
+        const match1 = currentUrl.replace(/www\./, '').match(experiment.urlRegex)
+        const match2 = currentUrl.match(experiment.urlRegex)
+        if (match1 || match2) validUrl = true
+        if (experiment.urlExclude && currentUrl.match(experiment.urlExclude)) validUrl = false
         document.querySelector('#foo').innerHTML += `
           <h4 title="id=${expId}">Name: ${experiment.name}</h4>
           <dl>
@@ -150,7 +167,7 @@ function run() {
             <dd>${experiment.segmentCode}</dd>
           </dl>
           <dl class="${experiment.segmentMatch}">
-            <dt>are you in the segment?</dt>
+            <dt>are you currently in the segment?</dt>
             <dd>${experiment.segmentMatch}</dd>
           </dl>
           <dl class="${inExperiment}">
@@ -159,7 +176,7 @@ function run() {
           </dl>
           <dl class="${validUrl}">
             <dt>is this url part of the experiment?</dt>
-            <dd>${validUrl}</dd>
+            <dd>${validUrl} (${experiment.urlRegex})</dd>
           </dl>
           <dl>
             <dt>variation</dt>
