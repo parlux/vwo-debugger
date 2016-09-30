@@ -1,9 +1,9 @@
-// Chrome automatically creates a background.html page for this to execute.
-// This can access the inspected page via executeScript
+// This is the main app for the devtools panel. Chrome automatically
+// creates a background.html page for this to execute.
 //
-// Can use:
-// chrome.tabs.*
-// chrome.runtime.*
+// You can read up on how this connects to the devtools page and
+// the inspected window here:
+// https://developer.chrome.com/extensions/devtools
 
 chrome.runtime.onConnect.addListener(function (devToolsConnection) {
   var devToolsListener = function (message, sender, sendResponse) {
