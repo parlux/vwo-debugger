@@ -5,29 +5,34 @@
 // chrome.tabs.*
 // chrome.runtime.*
 
-function validateMessageFromDevtools(message) {
-  if (!message.tabId) throw "No tabId provided for message"
-  if (!message.file) throw "No file provided for message"
-}
-
 chrome.runtime.onConnect.addListener(function (devToolsConnection) {
-  // assign the listener function to a variable so we can remove it later
   var devToolsListener = function (message, sender, sendResponse) {
-    validateMessageFromDevtools(message)
-    chrome.tabs.executeScript(message.tabId, {file: message.file});
+    switch (message.action) {
+      case 'code':
+        chrome.tabs.executeScript(message.tabId, {code: message.code})
+        break
+      case 'file':
+        chrome.tabs.executeScript(message.tabId, {file: message.file})
+        break
+      default:
+        console.error('Message must have a valid action')
+    }
   }
 
+  // Runs when dom content is loaded
   var loadListener = function(details) {
     if (details.frameId === 0) {
+      // Send message to devtools panel
       devToolsConnection.postMessage({ action: 'reload' })
     }
   }
 
-  // Listens to messages sent from the panel
+  // Listens to messages sent from the devtools panel
   chrome.runtime.onMessage.addListener(devToolsListener);
   chrome.webNavigation.onDOMContentLoaded.addListener(loadListener);
 
-  devToolsConnection.onDisconnect.addListener(function (devToolsConnection) {
+  // Remove listeners
+  devToolsConnection.onDisconnect.addListener(function () {
     chrome.runtime.onMessage.removeListener(devToolsListener);
     chrome.webNavigation.onDOMContentLoaded.removeListener(loadListener);
   })

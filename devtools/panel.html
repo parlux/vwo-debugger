@@ -1,63 +1,9 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="foo.css">
+</head>
 <body>
-<style>
-    body {
-        background-color: #fff;
-        color: #788290;
-    }
-
-    button {
-        cursor: pointer;
-        background: #47B178;
-        color: #FFF;
-        border: 1px solid #47b178;
-        border-radius: 3px;
-        font-weight: bold;
-        text-transform: uppercase;
-        display: inline-block;
-        transition: 0.15s ease-in-out;
-        transition-property: background, border, color;
-    }
-
-    h4 {
-        font-size: 16px;
-        margin: 15px 0 4px 0;
-    }
-
-    p {
-        margin: 2px 0;
-    }
-
-    dl {
-        margin: 2px 0;
-    }
-
-    dl dd {
-        display: inline;
-        margin: 0;
-    }
-    dl dd:after{
-        display: block;
-        content: '';
-    }
-    dl dt{
-        font-weight: bold;
-        display: inline-block;
-    }
-    dl dt:after {
-        content: ': ';
-    }
-    
-    .yes, .true, .yep {
-        color: green;
-    }
-    
-    .no, .false, .nope {
-        color: red;
-    }
-</style>
-
 <div>
     <svg width="100" height="60" viewBox="0 0 279 96" xmlns="http://www.w3.org/2000/svg">
         <g fill="none" fill-rule="evenodd">
@@ -96,18 +42,11 @@
 <button id="clearVWOCookies">CLEAR VWO COOKIES</button>
 <hr>
 
-<!-- Consider handlebars? -->
 <div id="foo"></div>
-<!--<h2>Experiment: {{ expName }}</h2>-->
-<!--<p>Status: <span id="expStatus"></span></p>-->
-<!--<p>You aren't part of this experiment</p>-->
-<!--<p>You are part of this experiment, you're seeing: Control</p>-->
 
-<!--<p>Experiment Id: <span id="expId"></span></p>-->
-<!--<p>Experiment Name: <span id="expName"></span></p>-->
-<!--<p>Combination: <span id="expCombination"></span></p>-->
-
-<script src="../libs/utils.js"></script>
+<script src="constants.js"></script>
+<script src="logger.js"></script>
+<script src="utils.js"></script>
 <script src="panel.js"></script>
 </body>
 </html>

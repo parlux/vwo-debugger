@@ -1,0 +1,57 @@
+body {
+    background-color: #fff;
+    color: #788290;
+}
+
+button {
+    cursor: pointer;
+    background: #47B178;
+    color: #FFF;
+    border: 1px solid #47b178;
+    border-radius: 3px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+    transition: 0.15s ease-in-out;
+    transition-property: background, border, color;
+}
+
+h4 {
+    font-size: 16px;
+    margin: 15px 0 4px 0;
+}
+
+p {
+    margin: 2px 0;
+}
+
+dl {
+    margin: 2px 0;
+}
+
+dl dd {
+    display: inline;
+    margin: 0;
+}
+
+dl dd:after {
+    display: block;
+    content: '';
+}
+
+dl dt {
+    font-weight: bold;
+    display: inline-block;
+}
+
+dl dt:after {
+    content: ': ';
+}
+
+.yes, .true, .yep {
+    color: green;
+}
+
+.no, .false, .nope {
+    color: red;
+}
