@@ -6,8 +6,15 @@
 
 const Logger = require('./utils/logger')
 const BackgroundManager = require('./utils/background-manager')
+const VwoService = require('./services/vwo')
 
 // Setup the connection to the background page
 BackgroundManager.connect()
 
 Logger.info('init!!!')
+
+VwoService.fetchExperiments()
+  .then(function(experiments) {
+    Logger.info('experiments', experiments)
+  })
+

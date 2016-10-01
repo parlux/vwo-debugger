@@ -52,11 +52,18 @@
 
 	const Logger = __webpack_require__(7)
 	const BackgroundManager = __webpack_require__(10)
+	const VwoService = __webpack_require__(11)
 
 	// Setup the connection to the background page
 	BackgroundManager.connect()
 
 	Logger.info('init!!!')
+
+	VwoService.fetchExperiments()
+	  .then(function(experiments) {
+	    Logger.info('experiments', experiments)
+	  })
+
 
 
 /***/ },
@@ -146,6 +153,24 @@
 
 	module.exports = BackgroundManager
 
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	const VwoService = {
+	  fetchExperiments: () => {
+	    return new Promise((resolve, reject) => {
+	      chrome.devtools.inspectedWindow.eval("_vwo_exp", function (experiments, isException) {
+	        if (isException) reject('Failed to load experiments')
+
+	        resolve(experiments)
+	      })
+	    })
+	  }
+	}
+
+	module.exports = VwoService
 
 /***/ }
 /******/ ]);
