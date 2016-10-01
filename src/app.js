@@ -13,8 +13,15 @@ BackgroundManager.connect()
 
 Logger.info('init!!!')
 
-VwoService.fetchExperiments()
-  .then(function(experiments) {
-    Logger.info('experiments', experiments)
+const promises = [
+VwoService.fetchExperiments(),
+VwoService.fetchCookies(),
+VwoService.fetchBrowserLocation()
+]
+Promise.all(promises).then(values => {
+  var foo = values.reduce((combiner, val) => {
+    Object.assign(combiner, val)
+    return combiner
   })
-
+  Logger.info('foo', foo)
+})
