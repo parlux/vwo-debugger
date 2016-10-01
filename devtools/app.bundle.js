@@ -50,13 +50,13 @@
 	// the inspected window here...it's mildly confusing:
 	// https://developer.chrome.com/extensions/devtools
 
-	const logger = __webpack_require__(7)
-	const chromeUtils = __webpack_require__(8)
+	const Logger = __webpack_require__(7)
+	const BackgroundManager = __webpack_require__(10)
 
 	// Setup the connection to the background page
-	chromeUtils.connectToBackgroundPage('vwo-debugger')
+	BackgroundManager.connect()
 
-	logger.info('init!!!')
+	Logger.info('init!!!')
 
 
 /***/ },
@@ -81,7 +81,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const actions = __webpack_require__(3)
-	const chromeUtils = __webpack_require__(8)
+	const ChromeExt = __webpack_require__(9)
 
 	const logger = {
 	  info: function (...args) {
@@ -89,10 +89,9 @@
 	      return JSON.stringify(arg)
 	    })
 
-	    chromeUtils.sendToInspectedWindow({
-	      code: `console.log('VWO Debugger:::', ${strArgs})`,
-	      action: actions.CODE
-	    })
+	    ChromeExt.executeCodeInInspectedWindow(
+	      `console.log('VWO Debugger:::', ${strArgs})`
+	    )
 	  }
 	}
 
@@ -100,26 +99,52 @@
 
 
 /***/ },
-/* 8 */
-/***/ function(module, exports) {
+/* 8 */,
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
 
-	const chromeUtils = {
+	// This is the adapter for the chrome extension
+	// None of the other modules should know or care
+	// about the specific chrome extension methods
+
+	const actions = __webpack_require__(3)
+
+	const ChromeExt = {
+	  // Establish a long running connection with the
+	  // background page
 	  connectToBackgroundPage: (name) => {
 	    return chrome.runtime.connect({
 	      name
 	    })
 	  },
 
-	  sendToInspectedWindow: (message) => {
+	  // Sends message to background page, which then
+	  // forward the request to the tabId specified here
+	  executeCodeInInspectedWindow: (code) => {
 	    chrome.runtime.sendMessage({
 	      tabId: chrome.devtools.inspectedWindow.tabId,
-	      code: message.code,
-	      action: message.action
+	      code: code,
+	      action: actions.CODE
 	    })
 	  }
 	}
 
-	module.exports = chromeUtils
+	module.exports = ChromeExt
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const chromeExtUtils = __webpack_require__(9)
+
+	const BackgroundManager = {
+	  connect: function () {
+	    return chromeExtUtils.connectToBackgroundPage('vwo-debugger')
+	  }
+	}
+
+	module.exports = BackgroundManager
 
 
 /***/ }

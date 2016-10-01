@@ -4,10 +4,10 @@
 // the inspected window here...it's mildly confusing:
 // https://developer.chrome.com/extensions/devtools
 
-const logger = require('./utils/logger')
-const chromeUtils = require('./utils/chrome-utils')
+const Logger = require('./utils/logger')
+const BackgroundManager = require('./utils/background-manager')
 
 // Setup the connection to the background page
-chromeUtils.connectToBackgroundPage('vwo-debugger')
+BackgroundManager.connect()
 
-logger.info('init!!!')
+Logger.info('init!!!')

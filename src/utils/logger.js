@@ -1,5 +1,5 @@
 const actions = require('../constants/actions')
-const chromeUtils = require('../utils/chrome-utils')
+const ChromeExt = require('../utils/chrome-ext')
 
 const logger = {
   info: function (...args) {
@@ -7,10 +7,9 @@ const logger = {
       return JSON.stringify(arg)
     })
 
-    chromeUtils.sendToInspectedWindow({
-      code: `console.log('VWO Debugger:::', ${strArgs})`,
-      action: actions.CODE
-    })
+    ChromeExt.executeCodeInInspectedWindow(
+      `console.log('VWO Debugger:::', ${strArgs})`
+    )
   }
 }
 
