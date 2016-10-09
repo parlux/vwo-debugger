@@ -59,7 +59,7 @@ const ExperimentComponent = () => {
              </a>
            </h4>
          </div>
-         <div id="collapse${props.id}" class="panel-collapse collapse" role="tabpanel">
+         <div id="collapse${props.id}" class="panel-collapse collapse in" role="tabpanel">
            <div class="panel-body">${expList}</div>
          </div>
        </div>
