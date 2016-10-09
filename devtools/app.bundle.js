@@ -50,33 +50,44 @@
 	// the inspected window here...it's mildly confusing:
 	// https://developer.chrome.com/extensions/devtools
 
-	const Logger = __webpack_require__(7)
-	const BackgroundManager = __webpack_require__(10)
-	const VwoService = __webpack_require__(11)
+	const Logger = __webpack_require__(1)
+	const BackgroundManager = __webpack_require__(4)
+	const VwoService = __webpack_require__(5)
 
 	// Setup the connection to the background page
 	BackgroundManager.connect()
 
 	Logger.info('init!!!')
 
-	const promises = [
-	VwoService.fetchExperiments(),
-	VwoService.fetchCookies(),
-	VwoService.fetchBrowserLocation()
-	]
-	Promise.all(promises).then(values => {
-	  var foo = values.reduce((combiner, val) => {
-	    Object.assign(combiner, val)
-	    return combiner
-	  })
-	  Logger.info('foo', foo)
+	VwoService.fetchData().then(data => {
+	  Logger.info(data)
 	})
 
 
 /***/ },
-/* 1 */,
-/* 2 */,
-/* 3 */
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const actions = __webpack_require__(2)
+	const ChromeExt = __webpack_require__(3)
+
+	const logger = {
+	  info: function (...args) {
+	    const strArgs = args.map(arg => {
+	      return JSON.stringify(arg)
+	    })
+
+	    ChromeExt.executeCodeInInspectedWindow(
+	      `console.log('VWO Debugger::', ${strArgs})`
+	    )
+	  }
+	}
+
+	module.exports = logger
+
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	const actions = {
@@ -88,40 +99,14 @@
 
 
 /***/ },
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const actions = __webpack_require__(3)
-	const ChromeExt = __webpack_require__(9)
-
-	const logger = {
-	  info: function (...args) {
-	    const strArgs = args.map(arg => {
-	      return JSON.stringify(arg)
-	    })
-
-	    ChromeExt.executeCodeInInspectedWindow(
-	      `console.log('VWO Debugger:::', ${strArgs})`
-	    )
-	  }
-	}
-
-	module.exports = logger
-
-
-/***/ },
-/* 8 */,
-/* 9 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// This is the adapter for the chrome extension
 	// None of the other modules should know or care
 	// about the specific chrome extension methods
 
-	const actions = __webpack_require__(3)
+	const actions = __webpack_require__(2)
 
 	const ChromeExt = {
 	  // Establish a long running connection with the
@@ -147,10 +132,10 @@
 
 
 /***/ },
-/* 10 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const chromeExtUtils = __webpack_require__(9)
+	const chromeExtUtils = __webpack_require__(3)
 
 	const BackgroundManager = {
 	  connect: function () {
@@ -162,7 +147,7 @@
 
 
 /***/ },
-/* 11 */
+/* 5 */
 /***/ function(module, exports) {
 
 	const VwoService = {
@@ -178,8 +163,15 @@
 
 	  fetchCookies: () => {
 	    return new Promise((resolve, reject) => {
-	      chrome.devtools.inspectedWindow.eval("document.cookie", function (cookies, isException) {
+	      chrome.devtools.inspectedWindow.eval("document.cookie", function (cookiesString, isException) {
 	        if (isException) reject('Failed to load cookies')
+
+	        const cookies = {}
+
+	        cookiesString.split(';').forEach(cookie => {
+	          const foo = cookie.split('=')
+	          cookies[foo[0].trim()] = foo[1].trim()
+	        })
 
 	        resolve({ cookies: cookies })
 	      })
@@ -192,6 +184,25 @@
 	        if (isException) reject('Failed to load url')
 
 	        resolve({ location: location })
+	      })
+	    })
+	  },
+
+	  fetchData: () => {
+	    return new Promise((resolve, reject) => {
+	      const promises = [
+	        VwoService.fetchExperiments(),
+	        VwoService.fetchCookies(),
+	        VwoService.fetchBrowserLocation()
+	      ]
+
+	      Promise.all(promises).then(values => {
+	        const data = values.reduce((combiner, val) => {
+	          Object.assign(combiner, val)
+	          return combiner
+	        })
+
+	        resolve(data)
 	      })
 	    })
 	  }

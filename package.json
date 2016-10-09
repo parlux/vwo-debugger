@@ -4,7 +4,7 @@
   "description": "The restless spirits have awakened and brought forth the power to debug live VWO tests! Enjoy the knowledge of which tests are running, what experiments you're part of, and if you're a conversion or just a drifter :D",
   "main": "background.js",
   "scripts": {
-    "watch": "./node_modules/.bin/webpack --progress --colors --watch",
+    "dev": "./node_modules/.bin/webpack --progress --colors --watch",
     "test": "./node_modules/.bin/jasmine"
   },
   "repository": {

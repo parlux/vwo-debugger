@@ -11,8 +11,15 @@ const VwoService = {
 
   fetchCookies: () => {
     return new Promise((resolve, reject) => {
-      chrome.devtools.inspectedWindow.eval("document.cookie", function (cookies, isException) {
+      chrome.devtools.inspectedWindow.eval("document.cookie", function (cookiesString, isException) {
         if (isException) reject('Failed to load cookies')
+
+        const cookies = {}
+
+        cookiesString.split(';').forEach(cookie => {
+          const foo = cookie.split('=')
+          cookies[foo[0].trim()] = foo[1].trim()
+        })
 
         resolve({ cookies: cookies })
       })
@@ -25,6 +32,25 @@ const VwoService = {
         if (isException) reject('Failed to load url')
 
         resolve({ location: location })
+      })
+    })
+  },
+
+  fetchData: () => {
+    return new Promise((resolve, reject) => {
+      const promises = [
+        VwoService.fetchExperiments(),
+        VwoService.fetchCookies(),
+        VwoService.fetchBrowserLocation()
+      ]
+
+      Promise.all(promises).then(values => {
+        const data = values.reduce((combiner, val) => {
+          Object.assign(combiner, val)
+          return combiner
+        })
+
+        resolve(data)
       })
     })
   }

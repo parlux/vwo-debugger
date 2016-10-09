@@ -8,7 +8,7 @@ const logger = {
     })
 
     ChromeExt.executeCodeInInspectedWindow(
-      `console.log('VWO Debugger:::', ${strArgs})`
+      `console.log('VWO Debugger::', ${strArgs})`
     )
   }
 }
