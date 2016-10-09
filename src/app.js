@@ -13,24 +13,24 @@ const backgroundPageConnection = BackgroundManager.connect()
 
 // Listen to messages from the background page
 backgroundPageConnection.onMessage.addListener(function (message) {
-  Logger.info('Reload')
+  Logger.info('Page Load Event')
   if (message.action === 'reload') {
-    VwoExperiments().init().then(yum => {
-      $contentVille.innerHTML = yum
-    })
+    run()
   }
 })
 
 // Componentize me?
 const $reload = document.getElementById('reload')
-$reload.addEventListener("click", function() {
+$reload.addEventListener('click', () => {
+  Logger.info('Reload Click Event')
+  run()
+})
+
+function run() {
   VwoExperiments().init().then(yum => {
     $contentVille.innerHTML = yum
   })
-})
+}
 
 const $contentVille = document.querySelector('#accordion')
-VwoExperiments().init().then(yum => {
-  $contentVille.innerHTML = yum
-})
-
+run()

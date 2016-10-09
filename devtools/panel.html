@@ -7,6 +7,18 @@
 <body>
 
 <div class="container">
+
+
+    <div class="dropdown nav-button pull-right">
+        <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a id="reload" href="#">Reload data</a></li>
+            <li><a href="#">Clear All Cookies</a></li>
+        </ul>
+    </div>
+
     <header>
         <svg width="100" height="60" viewBox="0 0 279 96" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" fill-rule="evenodd">
@@ -42,12 +54,13 @@
     </header>
 
     <hr>
-
-    <button id="reload" class="btn .btn-sm btn-vwo">Reload</button>
-
     <hr>
 
-    <h4>VWO Experiments on this site:</h4>
+    <!--<div id="reload" class="pull-right btn btn-default btn-sm">-->
+        <!--<span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>-->
+    <!--</div>-->
+
+    <h5>VWO Experiments on this site:</h5>
     <div class="panel-group" id="accordion"></div>
 </div>
 

@@ -19,3 +19,11 @@ body {
 .panel-heading.bg-success {
     background-color: #dff0d8 !important;
 }
+
+.nav-button {
+    margin-top: 10px;
+}
+
+header {
+    margin-bottom: -20px;
+}
