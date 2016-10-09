@@ -16,12 +16,16 @@ const VwoService = {
 
         const cookies = {}
 
-        cookiesString.split(';').forEach(cookie => {
-          const foo = cookie.split('=')
-          cookies[foo[0].trim()] = foo[1].trim()
-        })
+        cookiesString.split(';')
+          .filter(cookie => {
+            return cookie.match(/_vwo_/) || cookie.match(/_vis_opt_/)
+          })
+          .forEach(cookie => {
+            const foo = cookie.split('=')
+            cookies[foo[0].trim()] = foo[1].trim()
+          })
 
-        resolve({ cookies: cookies })
+        resolve({ vwoCookies: cookies })
       })
     })
   },
