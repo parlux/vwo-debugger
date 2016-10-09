@@ -4,6 +4,7 @@
 // the inspected window here...it's mildly confusing:
 // https://developer.chrome.com/extensions/devtools
 
+const Logger = require('./utils/logger')
 const BackgroundManager = require('./utils/background-manager')
 const VwoExperiments = require('./components/experiments')
 
@@ -12,7 +13,8 @@ const backgroundPageConnection = BackgroundManager.connect()
 
 // Listen to messages from the background page
 backgroundPageConnection.onMessage.addListener(function (message) {
-  if (message.action === 'reload' && run) {
+  Logger.info('Reload')
+  if (message.action === 'reload') {
     VwoExperiments().init().then(yum => {
       $contentVille.innerHTML = yum
     })

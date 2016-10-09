@@ -50,6 +50,7 @@
 	// the inspected window here...it's mildly confusing:
 	// https://developer.chrome.com/extensions/devtools
 
+	const Logger = __webpack_require__(1)
 	const BackgroundManager = __webpack_require__(4)
 	const VwoExperiments = __webpack_require__(6)
 
@@ -58,7 +59,8 @@
 
 	// Listen to messages from the background page
 	backgroundPageConnection.onMessage.addListener(function (message) {
-	  if (message.action === 'reload' && run) {
+	  Logger.info('Reload')
+	  if (message.action === 'reload') {
 	    VwoExperiments().init().then(yum => {
 	      $contentVille.innerHTML = yum
 	    })
