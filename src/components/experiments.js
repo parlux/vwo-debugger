@@ -1,53 +1,32 @@
 const VwoService = require('../services/vwo')
-const Logger = require('../utils/logger')
+const Experiment  = require('./experiment')
 
-const experimentsComponent = (experiments) => {
-  const state = {}
-
-  return {
-    fetchExperiments: () => {
-      state.experiments = VwoService.fetchData()
+const ExperimentsComponent = () => {
+  const methods = {
+    init: () => {
+      return methods.fetchVwoData()
+        .then(methods.render)
     },
 
-    render: () => {
-      Logger.info('ahhh')
+    fetchVwoData: () => {
+      return VwoService.fetchData()
+    },
+
+    render: (vwoData) => {
       const $contentVille = document.querySelector('#accordion')
 
-      VwoService.fetchData().then(data => {
+      let foo = ''
 
-        for (let experimentId in data.experiments) {
-          const experiment = data.experiments[experimentId]
-          Logger.info(experimentId, experiment)
+      for(let experimentId in vwoData.experiments) {
+        const experiment = Object.assign({ id: experimentId }, vwoData.experiments[experimentId])
+        foo += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
+      }
 
-          const combiCookie = data.vwoCookies[`_vis_opt_exp_${experimentId}_combi`]
-          const combiName = experiment.comb_n[combiCookie]
-
-          $contentVille.innerHTML += `
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingOne">
-                <h4 class="panel-title">
-                  <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${experimentId}">
-                     ${experiment.name} 
-                  </a>
-                </h4>
-              </div>
-              <div id="collapse${experimentId}" class="panel-collapse collapse" role="tabpanel">
-                <div class="panel-body">
-                  <ul>
-                      <li>id: ${experimentId}</li>
-                      <li>cookie: ${combiName}</li>
-                      <li>urlRegex: ${experiment.urlRegex}</li>
-                      <li>in segment?: ${experiment.segment_eligble}</li>
-                      <li>valid url?: ${experiment.ready}</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          `
-        }
-      })
+      return foo
     }
   }
+
+  return methods
 }
 
-module.exports = experimentsComponent
+module.exports = ExperimentsComponent

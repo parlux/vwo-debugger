@@ -14,7 +14,11 @@ BackgroundManager.connect()
 // Componentize me?
 const $reload = document.getElementById('reload')
 $reload.addEventListener("click", function() {
-  VwoExperiments().render()
+  VwoExperiments().init()
 })
 
-VwoExperiments().render()
+const $contentVille = document.querySelector('#accordion')
+VwoExperiments().init().then(yum => {
+  $contentVille.innerHTML = yum
+})
+

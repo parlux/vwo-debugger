@@ -60,10 +60,15 @@
 	// Componentize me?
 	const $reload = document.getElementById('reload')
 	$reload.addEventListener("click", function() {
-	  VwoExperiments().render()
+	  VwoExperiments().init()
 	})
 
-	VwoExperiments().render()
+	const $contentVille = document.querySelector('#accordion')
+	VwoExperiments().init().then(yum => {
+	  $contentVille.innerHTML = yum
+	})
+
+
 
 /***/ },
 /* 1 */
@@ -220,58 +225,115 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const VwoService = __webpack_require__(5)
+	const Experiment  = __webpack_require__(7)
+
+	const ExperimentsComponent = () => {
+	  const methods = {
+	    init: () => {
+	      return methods.fetchVwoData()
+	        .then(methods.render)
+	    },
+
+	    fetchVwoData: () => {
+	      return VwoService.fetchData()
+	    },
+
+	    render: (vwoData) => {
+	      const $contentVille = document.querySelector('#accordion')
+
+	      let foo = ''
+
+	      for(let experimentId in vwoData.experiments) {
+	        const experiment = Object.assign({ id: experimentId }, vwoData.experiments[experimentId])
+	        foo += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
+	      }
+
+	      return foo
+	    }
+	  }
+
+	  return methods
+	}
+
+	module.exports = ExperimentsComponent
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
 	const Logger = __webpack_require__(1)
 
-	const experimentsComponent = (experiments) => {
-	  const state = {}
+	const ExperimentComponent = () => {
+	  const props = {}
 
-	  return {
-	    fetchExperiments: () => {
-	      state.experiments = VwoService.fetchData()
+	  const methods = {
+	    init: (data) => {
+	      methods.setProps(data)
+	      return methods.render()
+	    },
+
+	    setProps: (data) => {
+	      Logger.info(data)
+	      props.id = data.experiment.id
 	    },
 
 	    render: () => {
-	      Logger.info('ahhh')
-	      const $contentVille = document.querySelector('#accordion')
-
-	      VwoService.fetchData().then(data => {
-
-	        for (let experimentId in data.experiments) {
-	          const experiment = data.experiments[experimentId]
-	          Logger.info(experimentId, experiment)
-
-	          const combiCookie = data.vwoCookies[`_vis_opt_exp_${experimentId}_combi`]
-	          const combiName = experiment.comb_n[combiCookie]
-
-	          $contentVille.innerHTML += `
-	            <div class="panel panel-default">
-	              <div class="panel-heading" role="tab" id="headingOne">
-	                <h4 class="panel-title">
-	                  <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${experimentId}">
-	                     ${experiment.name} 
-	                  </a>
-	                </h4>
-	              </div>
-	              <div id="collapse${experimentId}" class="panel-collapse collapse" role="tabpanel">
-	                <div class="panel-body">
-	                  <ul>
-	                      <li>id: ${experimentId}</li>
-	                      <li>cookie: ${combiName}</li>
-	                      <li>urlRegex: ${experiment.urlRegex}</li>
-	                      <li>in segment?: ${experiment.segment_eligble}</li>
-	                      <li>valid url?: ${experiment.ready}</li>
-	                  </ul>
-	                </div>
-	              </div>
-	            </div>
-	          `
-	        }
-	      })
+	      return `
+	       <div class="panel panel-default">
+	         <div class="panel-heading" role="tab" id="headingOne">
+	           <h4 class="panel-title">
+	             <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${props.id}">
+	                ${props.id}
+	             </a>
+	           </h4>
+	         </div>
+	         <div id="collapse${props.id}" class="panel-collapse collapse" role="tabpanel">
+	           <div class="panel-body">
+	             <ul>
+	                 <li>id: ${props.id}</li>
+	             </ul>
+	           </div>
+	         </div>
+	       </div>
+	     `
+	      //
+	      //   for (let experimentId in data.experiments) {
+	      //     const experiment = data.experiments[experimentId]
+	      //     Logger.info(experimentId, experiment)
+	      //
+	      //     const combiCookie = data.vwoCookies[`_vis_opt_exp_${experimentId}_combi`]
+	      //     const combiName = experiment.comb_n[combiCookie]
+	      //
+	      //     $contentVille.innerHTML += `
+	      //       <div class="panel panel-default">
+	      //         <div class="panel-heading" role="tab" id="headingOne">
+	      //           <h4 class="panel-title">
+	      //             <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${experimentId}">
+	      //                ${experiment.name}
+	      //             </a>
+	      //           </h4>
+	      //         </div>
+	      //         <div id="collapse${experimentId}" class="panel-collapse collapse" role="tabpanel">
+	      //           <div class="panel-body">
+	      //             <ul>
+	      //                 <li>id: ${experimentId}</li>
+	      //                 <li>cookie: ${combiName}</li>
+	      //                 <li>urlRegex: ${experiment.urlRegex}</li>
+	      //                 <li>in segment?: ${experiment.segment_eligble}</li>
+	      //                 <li>valid url?: ${experiment.ready}</li>
+	      //             </ul>
+	      //           </div>
+	      //         </div>
+	      //       </div>
+	      //     `
+	      //   }
 	    }
 	  }
+
+	  return methods
 	}
 
-	module.exports = experimentsComponent
+	module.exports = ExperimentComponent
 
 /***/ }
 /******/ ]);
