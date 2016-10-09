@@ -6,54 +6,15 @@
 
 const Logger = require('./utils/logger')
 const BackgroundManager = require('./utils/background-manager')
-const VwoService = require('./services/vwo')
+const VwoExperiments = require('./components/experiments')
 
 // Setup the connection to the background page
 BackgroundManager.connect()
 
-const $contentVille = document.querySelector('#accordion')
+// Componentize me?
 const $reload = document.getElementById('reload')
+$reload.addEventListener("click", function() {
+  VwoExperiments().render()
+})
 
-$reload.addEventListener("click", onLoad)
-
-function onLoad() {
-  $contentVille.innerHTML = ''
-
-  VwoService.fetchData().then(data => {
-
-    for(let experimentId in data.experiments) {
-      const experiment = data.experiments[experimentId]
-      Logger.info(experimentId, experiment)
-
-      const combiCookie = data.vwoCookies[`_vis_opt_exp_${experimentId}_combi`]
-      const combiName = experiment.comb_n[combiCookie]
-
-      $contentVille.innerHTML += `
-      <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingOne">
-          <h4 class="panel-title">
-            <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${experimentId}">
-               ${experiment.name} 
-            </a>
-          </h4>
-        </div>
-        <div id="collapse${experimentId}" class="panel-collapse collapse" role="tabpanel">
-          <div class="panel-body">
-            <ul>
-                <li>id: ${experimentId}</li>
-                <li>cookie: ${combiName}</li>
-                <li>urlRegex: ${experiment.urlRegex}</li>
-                <li>in segment?: ${experiment.segment_eligble}</li>
-                <li>valid url?: ${experiment.ready}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    `
-    }
-
-    Logger.info(data)
-  })
-}
-
-onLoad()
+VwoExperiments().render()

@@ -52,57 +52,18 @@
 
 	const Logger = __webpack_require__(1)
 	const BackgroundManager = __webpack_require__(4)
-	const VwoService = __webpack_require__(5)
+	const VwoExperiments = __webpack_require__(6)
 
 	// Setup the connection to the background page
 	BackgroundManager.connect()
 
-	const $contentVille = document.querySelector('#accordion')
+	// Componentize me?
 	const $reload = document.getElementById('reload')
+	$reload.addEventListener("click", function() {
+	  VwoExperiments().render()
+	})
 
-	$reload.addEventListener("click", onLoad)
-
-	function onLoad() {
-	  $contentVille.innerHTML = ''
-
-	  VwoService.fetchData().then(data => {
-
-	    for(let experimentId in data.experiments) {
-	      const experiment = data.experiments[experimentId]
-	      Logger.info(experimentId, experiment)
-
-	      const combiCookie = data.vwoCookies[`_vis_opt_exp_${experimentId}_combi`]
-	      const combiName = experiment.comb_n[combiCookie]
-
-	      $contentVille.innerHTML += `
-	      <div class="panel panel-default">
-	        <div class="panel-heading" role="tab" id="headingOne">
-	          <h4 class="panel-title">
-	            <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${experimentId}">
-	               ${experiment.name} 
-	            </a>
-	          </h4>
-	        </div>
-	        <div id="collapse${experimentId}" class="panel-collapse collapse" role="tabpanel">
-	          <div class="panel-body">
-	            <ul>
-	                <li>id: ${experimentId}</li>
-	                <li>cookie: ${combiName}</li>
-	                <li>urlRegex: ${experiment.urlRegex}</li>
-	                <li>in segment?: ${experiment.segment_eligble}</li>
-	                <li>valid url?: ${experiment.ready}</li>
-	            </ul>
-	          </div>
-	        </div>
-	      </div>
-	    `
-	    }
-
-	    Logger.info(data)
-	  })
-	}
-
-	onLoad()
+	VwoExperiments().render()
 
 /***/ },
 /* 1 */
@@ -253,6 +214,64 @@
 	}
 
 	module.exports = VwoService
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const VwoService = __webpack_require__(5)
+	const Logger = __webpack_require__(1)
+
+	const experimentsComponent = (experiments) => {
+	  const state = {}
+
+	  return {
+	    fetchExperiments: () => {
+	      state.experiments = VwoService.fetchData()
+	    },
+
+	    render: () => {
+	      Logger.info('ahhh')
+	      const $contentVille = document.querySelector('#accordion')
+
+	      VwoService.fetchData().then(data => {
+
+	        for (let experimentId in data.experiments) {
+	          const experiment = data.experiments[experimentId]
+	          Logger.info(experimentId, experiment)
+
+	          const combiCookie = data.vwoCookies[`_vis_opt_exp_${experimentId}_combi`]
+	          const combiName = experiment.comb_n[combiCookie]
+
+	          $contentVille.innerHTML += `
+	            <div class="panel panel-default">
+	              <div class="panel-heading" role="tab" id="headingOne">
+	                <h4 class="panel-title">
+	                  <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${experimentId}">
+	                     ${experiment.name} 
+	                  </a>
+	                </h4>
+	              </div>
+	              <div id="collapse${experimentId}" class="panel-collapse collapse" role="tabpanel">
+	                <div class="panel-body">
+	                  <ul>
+	                      <li>id: ${experimentId}</li>
+	                      <li>cookie: ${combiName}</li>
+	                      <li>urlRegex: ${experiment.urlRegex}</li>
+	                      <li>in segment?: ${experiment.segment_eligble}</li>
+	                      <li>valid url?: ${experiment.ready}</li>
+	                  </ul>
+	                </div>
+	              </div>
+	            </div>
+	          `
+	        }
+	      })
+	    }
+	  }
+	}
+
+	module.exports = experimentsComponent
 
 /***/ }
 /******/ ]);
