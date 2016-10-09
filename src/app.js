@@ -22,6 +22,15 @@ backgroundPageConnection.onMessage.addListener(function (message) {
   }
 })
 
+// Run when conversion happens
+chrome.devtools.network.onRequestFinished.addListener(function (request) {
+  var vwoConversionGifUrl = 'http://dev.visualwebsiteoptimizer.com/c.gif'
+
+  if (request.request.url.indexOf(vwoConversionGifUrl) === 0) {
+    run()
+  }
+})
+
 // Componentize me?
 const $reload = document.querySelector('#reload')
 $reload.addEventListener('click', () => {
@@ -51,6 +60,21 @@ function run() {
   Logger.info('Refreshing page :D')
   VwoExperiments().init().then(yum => {
     $contentVille.innerHTML = yum
+
+    // Memory leak?
+    const $switchee = document.querySelectorAll('.goal.btn')
+    const expId = $switchee[0].dataset.expId
+    const variationId = $switchee[0].dataset.variationId
+    Logger.info('Swtichee', expId, variationId)
+    $switchee[0].addEventListener('click', () => {
+      // document.cookie = '_vis_opt_exp_32_combi=1;path=/;domain=.kitchenwarehouse.com.au;expires=Thu, 01 Jan 2017 00:00:00 GMT'
+      Utils.executeCodeInInspectedWindow(`
+        console.log('Magic cookie hacking!')
+        var today = new Date()
+        document.cookie = '_vis_opt_exp_${expId}_combi=${variationId};path=/;domain=.kitchenwarehouse.com.au;expires=Thu, 01 Jan ' + (today.getFullYear() + 1) + ' 00:00:00 GMT'
+        window.location.reload()
+      `)
+    })
   })
 }
 
