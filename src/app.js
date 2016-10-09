@@ -60,14 +60,13 @@ function run() {
   Logger.info('Refreshing page :D')
   VwoExperiments().init().then(yum => {
     $contentVille.innerHTML = yum
-
-    // Memory leak?
+    
     const $switchee = document.querySelectorAll('.goal.btn')
     const expId = $switchee[0].dataset.expId
     const variationId = $switchee[0].dataset.variationId
-    Logger.info('Swtichee', expId, variationId)
+
+    // Memory leak?
     $switchee[0].addEventListener('click', () => {
-      // document.cookie = '_vis_opt_exp_32_combi=1;path=/;domain=.kitchenwarehouse.com.au;expires=Thu, 01 Jan 2017 00:00:00 GMT'
       Utils.executeCodeInInspectedWindow(`
         console.log('Magic cookie hacking!')
         var today = new Date()
