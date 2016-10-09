@@ -58,8 +58,13 @@
 	BackgroundManager.connect()
 
 	const $contentVille = document.querySelector('#accordion')
+	const $reload = document.getElementById('reload')
+
+	$reload.addEventListener("click", onLoad)
 
 	function onLoad() {
+	  $contentVille.innerHTML = ''
+
 	  VwoService.fetchData().then(data => {
 
 	    for(let experimentId in data.experiments) {
@@ -83,6 +88,9 @@
 	            <ul>
 	                <li>id: ${experimentId}</li>
 	                <li>cookie: ${combiName}</li>
+	                <li>urlRegex: ${experiment.urlRegex}</li>
+	                <li>in segment?: ${experiment.segment_eligble}</li>
+	                <li>valid url?: ${experiment.ready}</li>
 	            </ul>
 	          </div>
 	        </div>
