@@ -8,7 +8,16 @@ const BackgroundManager = require('./utils/background-manager')
 const VwoExperiments = require('./components/experiments')
 
 // Setup the connection to the background page
-BackgroundManager.connect()
+const backgroundPageConnection = BackgroundManager.connect()
+
+// Listen to messages from the background page
+backgroundPageConnection.onMessage.addListener(function (message) {
+  if (message.action === 'reload' && run) {
+    VwoExperiments().init().then(yum => {
+      $contentVille.innerHTML = yum
+    })
+  }
+})
 
 // Componentize me?
 const $reload = document.getElementById('reload')
