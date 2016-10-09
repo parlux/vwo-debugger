@@ -21,6 +21,8 @@ const ExperimentComponent = () => {
       props.urlRegex = data.experiment.urlRegex
       props.exclude_url = data.experiment.exclude_url
       props.name = data.experiment.name
+      props.ready = data.experiment.ready
+      props.timedout = data.experiment.timedout
     },
 
     render: () => {
@@ -38,13 +40,15 @@ const ExperimentComponent = () => {
            <p>segment_code: <pre>${props.segment_code}</pre></p>
            <p>segment_code_v2: <pre>${props.segment_code_v2}</pre></p>
         `
-      } else {
-        title += ' - URL not matching'
+      } else if (props.segment_eligble && !props.ready && !props.timedout) {
+        title += ' <small class="text-danger">URL not matching</small>'
         expList = `
            <p>Your url is not matching!!!</p>
-           <p>urlRegex: <pre>${props.urlRegex}</pre></p>
-           <p>url exclude <pre>Regex: ${props.exclude_url}</pre></p>
+           <p>url regex: <pre>${props.urlRegex}</pre></p>
+           <p>url exclude: <pre>Regex: ${props.exclude_url}</pre></p>
         `
+      } else {
+        title += 'Something has gone wrong :('
       }
       return `
        <div class="panel panel-default">

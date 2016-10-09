@@ -53,6 +53,7 @@
 	const Logger = __webpack_require__(1)
 	const BackgroundManager = __webpack_require__(4)
 	const VwoExperiments = __webpack_require__(6)
+	const Utils = __webpack_require__(3)
 
 	// Setup the connection to the background page
 	const backgroundPageConnection = BackgroundManager.connect()
@@ -61,18 +62,39 @@
 	backgroundPageConnection.onMessage.addListener(function (message) {
 	  Logger.info('Page Load Event')
 	  if (message.action === 'reload') {
-	    run()
+	    setTimeout(function() {
+	      run()
+	    }, 1000)
 	  }
 	})
 
 	// Componentize me?
-	const $reload = document.getElementById('reload')
+	const $reload = document.querySelector('#reload')
 	$reload.addEventListener('click', () => {
 	  Logger.info('Reload Click Event')
 	  run()
 	})
 
+	const $clearCookies = document.querySelector('#cookie-clearer')
+	$clearCookies.addEventListener('click', () => {
+	  Logger.info('Clearing cookies for ya')
+	  Utils.executeCodeInInspectedWindow(`
+	    console.log('Clearing VWO cookies')
+	    document.cookie.split(';')
+	      .filter(f => {
+	        if (f.match(/_vwo/) || f.match(/_vis_opt/)) return true
+	      })
+	      .forEach(cookie => {
+	        const domain = '.kitchenwarehouse.com.au'
+	        const expires = 'Thu, 01 Jan 1970 00:00:01 GMT'
+	        document.cookie = cookie.trim() + ';path=/;domain=' + domain + ';expires=' + expires
+	      })
+	    window.location.reload()
+	  `)
+	})
+
 	function run() {
+	  Logger.info('Refreshing page :D')
 	  VwoExperiments().init().then(yum => {
 	    $contentVille.innerHTML = yum
 	  })
@@ -295,6 +317,8 @@
 	      props.urlRegex = data.experiment.urlRegex
 	      props.exclude_url = data.experiment.exclude_url
 	      props.name = data.experiment.name
+	      props.ready = data.experiment.ready
+	      props.timedout = data.experiment.timedout
 	    },
 
 	    render: () => {
@@ -312,13 +336,15 @@
 	           <p>segment_code: <pre>${props.segment_code}</pre></p>
 	           <p>segment_code_v2: <pre>${props.segment_code_v2}</pre></p>
 	        `
-	      } else {
-	        title += ' - URL not matching'
+	      } else if (props.segment_eligble && !props.ready && !props.timedout) {
+	        title += ' <small class="text-danger">URL not matching</small>'
 	        expList = `
 	           <p>Your url is not matching!!!</p>
-	           <p>urlRegex: <pre>${props.urlRegex}</pre></p>
-	           <p>url exclude <pre>Regex: ${props.exclude_url}</pre></p>
+	           <p>url regex: <pre>${props.urlRegex}</pre></p>
+	           <p>url exclude: <pre>Regex: ${props.exclude_url}</pre></p>
 	        `
+	      } else {
+	        title += 'Something has gone wrong :('
 	      }
 	      return `
 	       <div class="panel panel-default">
