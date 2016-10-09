@@ -4,7 +4,6 @@
 // the inspected window here...it's mildly confusing:
 // https://developer.chrome.com/extensions/devtools
 
-const Logger = require('./utils/logger')
 const BackgroundManager = require('./utils/background-manager')
 const VwoExperiments = require('./components/experiments')
 
@@ -14,7 +13,9 @@ BackgroundManager.connect()
 // Componentize me?
 const $reload = document.getElementById('reload')
 $reload.addEventListener("click", function() {
-  VwoExperiments().init()
+  VwoExperiments().init().then(yum => {
+    $contentVille.innerHTML = yum
+  })
 })
 
 const $contentVille = document.querySelector('#accordion')

@@ -3,7 +3,7 @@ body {
     color: #788290;
 }
 
-button {
+.btn-vwo {
     cursor: pointer;
     background: #47B178;
     color: #FFF;
@@ -16,42 +16,6 @@ button {
     transition-property: background, border, color;
 }
 
-h4 {
-    font-size: 16px;
-    margin: 15px 0 4px 0;
-}
-
-p {
-    margin: 2px 0;
-}
-
-dl {
-    margin: 2px 0;
-}
-
-dl dd {
-    display: inline;
-    margin: 0;
-}
-
-dl dd:after {
-    display: block;
-    content: '';
-}
-
-dl dt {
-    font-weight: bold;
-    display: inline-block;
-}
-
-dl dt:after {
-    content: ': ';
-}
-
-.yes, .true, .yep {
-    color: green;
-}
-
-.no, .false, .nope {
-    color: red;
+.panel-heading.bg-success {
+    background-color: #dff0d8 !important;
 }
