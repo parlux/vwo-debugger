@@ -3,13 +3,17 @@ const ChromeExt = require('../utils/chrome-ext')
 
 const logger = {
   info: function (...args) {
-    const strArgs = args.map(arg => {
-      return JSON.stringify(arg)
-    })
+    chrome.storage.sync.get({ debug: false }, items => {
+      if (items.debug) {
+        const strArgs = args.map(arg => {
+          return JSON.stringify(arg)
+        })
 
-    ChromeExt.executeCodeInInspectedWindow(
-      `console.log('VWO Debugger::', ${strArgs})`
-    )
+        ChromeExt.executeCodeInInspectedWindow(
+          `console.log('VWO Debugger::', ${strArgs})`
+        )
+      }
+    });
   }
 }
 

@@ -60,7 +60,7 @@ function run() {
   Logger.info('Refreshing page :D')
   VwoExperiments().init().then(yum => {
     $contentVille.innerHTML = yum
-    
+
     const $switchee = document.querySelectorAll('.goal.btn')
     const expId = $switchee[0].dataset.expId
     const variationId = $switchee[0].dataset.variationId

@@ -106,7 +106,7 @@
 	  Logger.info('Refreshing page :D')
 	  VwoExperiments().init().then(yum => {
 	    $contentVille.innerHTML = yum
-	    
+
 	    const $switchee = document.querySelectorAll('.goal.btn')
 	    const expId = $switchee[0].dataset.expId
 	    const variationId = $switchee[0].dataset.variationId
@@ -135,13 +135,17 @@
 
 	const logger = {
 	  info: function (...args) {
-	    const strArgs = args.map(arg => {
-	      return JSON.stringify(arg)
-	    })
+	    chrome.storage.sync.get({ debug: false }, items => {
+	      if (items.debug) {
+	        const strArgs = args.map(arg => {
+	          return JSON.stringify(arg)
+	        })
 
-	    ChromeExt.executeCodeInInspectedWindow(
-	      `console.log('VWO Debugger::', ${strArgs})`
-	    )
+	        ChromeExt.executeCodeInInspectedWindow(
+	          `console.log('VWO Debugger::', ${strArgs})`
+	        )
+	      }
+	    });
 	  }
 	}
 
