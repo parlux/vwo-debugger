@@ -54,11 +54,12 @@
 	const BackgroundManager = __webpack_require__(4)
 	const VwoExperiments = __webpack_require__(5)
 	const Utils = __webpack_require__(3)
+	const BrowserActions = __webpack_require__(9)
 
 	// Setup the connection to the background page
 	const backgroundPageConnection = BackgroundManager.connect()
-	// backgroundPageConnection.on('load', run)
-	backgroundPageConnection.on('navigate', function() { console.log('hello') })
+	backgroundPageConnection.on(BrowserActions.LOAD, function() { console.log('hello2') })
+	backgroundPageConnection.on(BrowserActions.NAVIGATE, function() { console.log('hello') })
 
 	// Run when conversion happens
 	chrome.devtools.network.onRequestFinished.addListener(function (request) {
@@ -202,8 +203,22 @@
 	  connect: function () {
 	    const connection = chromeExtUtils.connectToBackgroundPage('vwo-debugger')
 	    return new BackgroundPageConnection(connection)
+	  },
 
-	  }
+	  // setupListeners: function (connection) {
+	  //   // Listen to messages from the background page
+	  //   connection.onMessage.addListener(function (message) {
+	  //     switch (message.action) {
+	  //       case 'reload':
+	  //         Logger.info('Page Load Event')
+	  //         run()
+	  //         break
+	  //       case 'navigate':
+	  //         Logger.info('Page navigation start')
+	  //         break
+	  //     }
+	  //   })
+	  // }
 	}
 
 	module.exports = BackgroundManager
@@ -459,19 +474,44 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const Logger = __webpack_require__(1)
+	const BrowserActions = __webpack_require__(9)
 
 	class BackgroundPageConnection {
 	  constructor(backgroundPageConnection) {
-	    this.backgroundPageConnection = backgroundPageConnection
+	    this.callbacks = {}
+
+	    // Add listener
+	    backgroundPageConnection.onMessage.addListener(this.onIncomingMessage.bind(this))
 	  }
 
+	  // Prob need a whitelist for these actions...
+	  onIncomingMessage(message) {
+	    if (this.callbacks[message.action]) {
+	      Logger.info('Something should happen here', message.action)
+	      this.callbacks[message.action].call(this)
+	    }
+	  }
+
+	  // So what, this sets the callback?
 	  on(action, cb) {
-	    Logger.info('action', action)
-	    Logger.info('callback', cb)
+	    this.callbacks[action] = cb
 	  }
 	}
 
 	module.exports = BackgroundPageConnection
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	const browserActions = {
+	  'LOAD': 'load',
+	  'NAVIGATE': 'navigate'
+	}
+
+	module.exports = browserActions
+
 
 /***/ }
 /******/ ]);

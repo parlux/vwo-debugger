@@ -8,11 +8,12 @@ const Logger = require('./utils/logger')
 const BackgroundManager = require('./utils/background-manager')
 const VwoExperiments = require('./components/experiments')
 const Utils = require('./utils/chrome-ext')
+const BrowserActions = require('./constants/browser-events')
 
 // Setup the connection to the background page
 const backgroundPageConnection = BackgroundManager.connect()
-// backgroundPageConnection.on('load', run)
-backgroundPageConnection.on('navigate', function() { console.log('hello') })
+backgroundPageConnection.on(BrowserActions.LOAD, function() { console.log('hello2') })
+backgroundPageConnection.on(BrowserActions.NAVIGATE, function() { console.log('hello') })
 
 // Run when conversion happens
 chrome.devtools.network.onRequestFinished.addListener(function (request) {

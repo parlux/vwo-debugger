@@ -23,7 +23,7 @@ chrome.runtime.onConnect.addListener(function (devToolsConnection) {
   var loadListener = function(details) {
     // If it's the main tab window, frameId will equal 0
     if (details.frameId === 0) {
-      devToolsConnection.postMessage({ action: 'reload' })
+      devToolsConnection.postMessage({ action: 'load' })
     }
   }
 
