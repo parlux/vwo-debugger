@@ -1,6 +1,13 @@
 body {
-    background-color: #fff;
-    color: #788290;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6, p, div {
+    color: #aaa;
 }
 
 .btn-vwo {
@@ -20,12 +27,31 @@ body {
     background-color: #dff0d8 !important;
 }
 
-.nav-button {
-    margin-top: 10px;
+header {
+    background-color: #EEEFF1;
+    padding: 25px 0 20px 0;
+    border-bottom: 1px solid #ddd;
 }
 
-header {
-    margin-bottom: -20px;
+main {
+    padding-top: 15px;
+    background-color: #00294b;
+    flex-grow: 1;
+}
+
+.logo {
+    margin: 0 auto;
+    display: block;
+}
+
+.logo__vwo {
+    display: block;
+    height: 30px;
+}
+
+.logo__debugger {
+    display: block;
+    height: 15px;
 }
 
 .goal {
