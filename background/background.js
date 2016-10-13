@@ -21,19 +21,27 @@ chrome.runtime.onConnect.addListener(function (devToolsConnection) {
 
   // Runs when dom content is loaded
   var loadListener = function(details) {
+    // If it's the main tab window, frameId will equal 0
     if (details.frameId === 0) {
-      // Send message to devtools panel
       devToolsConnection.postMessage({ action: 'reload' })
+    }
+  }
+
+  var navigateListener = function(details) {
+    if (details.frameId === 0) {
+      devToolsConnection.postMessage({ action: 'navigate' })
     }
   }
 
   // Listens to messages sent from the devtools panel
   chrome.runtime.onMessage.addListener(devToolsListener);
-  chrome.webNavigation.onDOMContentLoaded.addListener(loadListener);
+  chrome.webNavigation.onBeforeNavigate.addListener(navigateListener);
+  chrome.webNavigation.onCompleted.addListener(loadListener);
 
   // Remove listeners
   devToolsConnection.onDisconnect.addListener(function () {
     chrome.runtime.onMessage.removeListener(devToolsListener);
-    chrome.webNavigation.onDOMContentLoaded.removeListener(loadListener);
+    chrome.webNavigation.onBeforeNavigate.removeListener(navigateListener);
+    chrome.webNavigation.onCompleted.addListener(loadListener);
   })
 });

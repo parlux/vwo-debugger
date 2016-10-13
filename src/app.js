@@ -11,16 +11,8 @@ const Utils = require('./utils/chrome-ext')
 
 // Setup the connection to the background page
 const backgroundPageConnection = BackgroundManager.connect()
-
-// Listen to messages from the background page
-backgroundPageConnection.onMessage.addListener(function (message) {
-  Logger.info('Page Load Event')
-  if (message.action === 'reload') {
-    setTimeout(function() {
-      run()
-    }, 1000)
-  }
-})
+// backgroundPageConnection.on('load', run)
+backgroundPageConnection.on('navigate', function() { console.log('hello') })
 
 // Run when conversion happens
 chrome.devtools.network.onRequestFinished.addListener(function (request) {
@@ -57,7 +49,7 @@ $clearCookies.addEventListener('click', () => {
 })
 
 function run() {
-  Logger.info('Refreshing page :D')
+  Logger.info('Running :D')
   VwoExperiments().init().then(yum => {
     $contentVille.innerHTML = yum
 
@@ -66,6 +58,7 @@ function run() {
     const variationId = $switchee[0].dataset.variationId
 
     // Memory leak?
+    // This upadates the cookie to put you in an experiment
     $switchee[0].addEventListener('click', () => {
       Utils.executeCodeInInspectedWindow(`
         console.log('Magic cookie hacking!')

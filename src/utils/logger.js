@@ -6,7 +6,7 @@ const logger = {
     chrome.storage.sync.get({ debug: false }, items => {
       if (items.debug) {
         const strArgs = args.map(arg => {
-          return JSON.stringify(arg)
+          return (typeof(arg) === 'function') ? arg.toString() : JSON.stringify(arg)
         })
 
         ChromeExt.executeCodeInInspectedWindow(

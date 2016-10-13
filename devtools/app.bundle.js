@@ -52,21 +52,13 @@
 
 	const Logger = __webpack_require__(1)
 	const BackgroundManager = __webpack_require__(4)
-	const VwoExperiments = __webpack_require__(6)
+	const VwoExperiments = __webpack_require__(5)
 	const Utils = __webpack_require__(3)
 
 	// Setup the connection to the background page
 	const backgroundPageConnection = BackgroundManager.connect()
-
-	// Listen to messages from the background page
-	backgroundPageConnection.onMessage.addListener(function (message) {
-	  Logger.info('Page Load Event')
-	  if (message.action === 'reload') {
-	    setTimeout(function() {
-	      run()
-	    }, 1000)
-	  }
-	})
+	// backgroundPageConnection.on('load', run)
+	backgroundPageConnection.on('navigate', function() { console.log('hello') })
 
 	// Run when conversion happens
 	chrome.devtools.network.onRequestFinished.addListener(function (request) {
@@ -103,7 +95,7 @@
 	})
 
 	function run() {
-	  Logger.info('Refreshing page :D')
+	  Logger.info('Running :D')
 	  VwoExperiments().init().then(yum => {
 	    $contentVille.innerHTML = yum
 
@@ -112,6 +104,7 @@
 	    const variationId = $switchee[0].dataset.variationId
 
 	    // Memory leak?
+	    // This upadates the cookie to put you in an experiment
 	    $switchee[0].addEventListener('click', () => {
 	      Utils.executeCodeInInspectedWindow(`
 	        console.log('Magic cookie hacking!')
@@ -138,7 +131,7 @@
 	    chrome.storage.sync.get({ debug: false }, items => {
 	      if (items.debug) {
 	        const strArgs = args.map(arg => {
-	          return JSON.stringify(arg)
+	          return (typeof(arg) === 'function') ? arg.toString() : JSON.stringify(arg)
 	        })
 
 	        ChromeExt.executeCodeInInspectedWindow(
@@ -202,10 +195,14 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const chromeExtUtils = __webpack_require__(3)
+	const Logger = __webpack_require__(1)
+	const BackgroundPageConnection = __webpack_require__(8)
 
 	const BackgroundManager = {
 	  connect: function () {
-	    return chromeExtUtils.connectToBackgroundPage('vwo-debugger')
+	    const connection = chromeExtUtils.connectToBackgroundPage('vwo-debugger')
+	    return new BackgroundPageConnection(connection)
+
 	  }
 	}
 
@@ -214,6 +211,43 @@
 
 /***/ },
 /* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const VwoService = __webpack_require__(6)
+	const Experiment  = __webpack_require__(7)
+
+	const ExperimentsComponent = () => {
+	  const methods = {
+	    init: () => {
+	      return methods.fetchVwoData()
+	        .then(methods.render)
+	    },
+
+	    fetchVwoData: () => {
+	      return VwoService.fetchData()
+	    },
+
+	    render: (vwoData) => {
+	      const $contentVille = document.querySelector('#accordion')
+
+	      let foo = ''
+
+	      for(let experimentId in vwoData.experiments) {
+	        const experiment = Object.assign({ id: experimentId }, vwoData.experiments[experimentId])
+	        foo += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
+	      }
+
+	      return foo
+	    }
+	  }
+
+	  return methods
+	}
+
+	module.exports = ExperimentsComponent
+
+/***/ },
+/* 6 */
 /***/ function(module, exports) {
 
 	const VwoService = {
@@ -279,43 +313,6 @@
 	}
 
 	module.exports = VwoService
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const VwoService = __webpack_require__(5)
-	const Experiment  = __webpack_require__(7)
-
-	const ExperimentsComponent = () => {
-	  const methods = {
-	    init: () => {
-	      return methods.fetchVwoData()
-	        .then(methods.render)
-	    },
-
-	    fetchVwoData: () => {
-	      return VwoService.fetchData()
-	    },
-
-	    render: (vwoData) => {
-	      const $contentVille = document.querySelector('#accordion')
-
-	      let foo = ''
-
-	      for(let experimentId in vwoData.experiments) {
-	        const experiment = Object.assign({ id: experimentId }, vwoData.experiments[experimentId])
-	        foo += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
-	      }
-
-	      return foo
-	    }
-	  }
-
-	  return methods
-	}
-
-	module.exports = ExperimentsComponent
 
 /***/ },
 /* 7 */
@@ -456,6 +453,25 @@
 	}
 
 	module.exports = ExperimentComponent
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const Logger = __webpack_require__(1)
+
+	class BackgroundPageConnection {
+	  constructor(backgroundPageConnection) {
+	    this.backgroundPageConnection = backgroundPageConnection
+	  }
+
+	  on(action, cb) {
+	    Logger.info('action', action)
+	    Logger.info('callback', cb)
+	  }
+	}
+
+	module.exports = BackgroundPageConnection
 
 /***/ }
 /******/ ]);
