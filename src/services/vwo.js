@@ -1,3 +1,5 @@
+const Logger = require('../utils/logger')
+
 const VwoService = {
   fetchExperiments: () => {
     return new Promise((resolve, reject) => {
@@ -30,22 +32,12 @@ const VwoService = {
     })
   },
 
-  fetchBrowserLocation: () => {
-    return new Promise((resolve, reject) => {
-      chrome.devtools.inspectedWindow.eval("window.location", function (location, isException) {
-        if (isException) reject('Failed to load url')
-
-        resolve({ location: location })
-      })
-    })
-  },
 
   fetchData: () => {
     return new Promise((resolve, reject) => {
       const promises = [
         VwoService.fetchExperiments(),
         VwoService.fetchCookies(),
-        VwoService.fetchBrowserLocation()
       ]
 
       Promise.all(promises).then(values => {
@@ -54,6 +46,7 @@ const VwoService = {
           return combiner
         })
 
+        Logger.info('All data', data)
         resolve(data)
       })
     })

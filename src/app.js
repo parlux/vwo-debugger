@@ -12,8 +12,8 @@ const BrowserActions = require('./constants/browser-events')
 
 // Setup the connection to the background page
 const backgroundPageConnection = BackgroundManager.connect()
-backgroundPageConnection.on(BrowserActions.LOAD, function() { console.log('hello2') })
-backgroundPageConnection.on(BrowserActions.NAVIGATE, function() { console.log('hello') })
+backgroundPageConnection.on(BrowserActions.LOAD, run)
+backgroundPageConnection.on(BrowserActions.NAVIGATE, clear)
 
 // Run when conversion happens
 chrome.devtools.network.onRequestFinished.addListener(function (request) {
@@ -49,6 +49,12 @@ $clearCookies.addEventListener('click', () => {
   `)
 })
 
+// This needs to move to experiments
+function clear() {
+  $contentVille.innerHTML = "Loading..."
+}
+
+// I think just contentVille lives here.
 function run() {
   Logger.info('Running :D')
   VwoExperiments().init().then(yum => {

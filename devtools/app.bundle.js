@@ -58,8 +58,8 @@
 
 	// Setup the connection to the background page
 	const backgroundPageConnection = BackgroundManager.connect()
-	backgroundPageConnection.on(BrowserActions.LOAD, function() { console.log('hello2') })
-	backgroundPageConnection.on(BrowserActions.NAVIGATE, function() { console.log('hello') })
+	backgroundPageConnection.on(BrowserActions.LOAD, run)
+	backgroundPageConnection.on(BrowserActions.NAVIGATE, clear)
 
 	// Run when conversion happens
 	chrome.devtools.network.onRequestFinished.addListener(function (request) {
@@ -95,6 +95,12 @@
 	  `)
 	})
 
+	// This needs to move to experiments
+	function clear() {
+	  $contentVille.innerHTML = "Loading..."
+	}
+
+	// I think just contentVille lives here.
 	function run() {
 	  Logger.info('Running :D')
 	  VwoExperiments().init().then(yum => {
@@ -263,7 +269,9 @@
 
 /***/ },
 /* 6 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	const Logger = __webpack_require__(1)
 
 	const VwoService = {
 	  fetchExperiments: () => {
@@ -297,22 +305,12 @@
 	    })
 	  },
 
-	  fetchBrowserLocation: () => {
-	    return new Promise((resolve, reject) => {
-	      chrome.devtools.inspectedWindow.eval("window.location", function (location, isException) {
-	        if (isException) reject('Failed to load url')
-
-	        resolve({ location: location })
-	      })
-	    })
-	  },
 
 	  fetchData: () => {
 	    return new Promise((resolve, reject) => {
 	      const promises = [
 	        VwoService.fetchExperiments(),
 	        VwoService.fetchCookies(),
-	        VwoService.fetchBrowserLocation()
 	      ]
 
 	      Promise.all(promises).then(values => {
@@ -321,6 +319,7 @@
 	          return combiner
 	        })
 
+	        Logger.info('All data', data)
 	        resolve(data)
 	      })
 	    })
@@ -345,7 +344,6 @@
 	    },
 
 	    setProps: (data) => {
-	      Logger.info(data)
 	      props.id = data.experiment.id
 	      props.combiCookie = data.cookies[`_vis_opt_exp_${props.id}_combi`]
 	      props.inExperiment = props.combiCookie ? true : false
@@ -473,26 +471,18 @@
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Logger = __webpack_require__(1)
 	const BrowserActions = __webpack_require__(9)
 
 	class BackgroundPageConnection {
 	  constructor(backgroundPageConnection) {
 	    this.callbacks = {}
-
-	    // Add listener
 	    backgroundPageConnection.onMessage.addListener(this.onIncomingMessage.bind(this))
 	  }
 
-	  // Prob need a whitelist for these actions...
 	  onIncomingMessage(message) {
-	    if (this.callbacks[message.action]) {
-	      Logger.info('Something should happen here', message.action)
-	      this.callbacks[message.action].call(this)
-	    }
+	    if (this.callbacks[message.action]) this.callbacks[message.action].call(this)
 	  }
 
-	  // So what, this sets the callback?
 	  on(action, cb) {
 	    this.callbacks[action] = cb
 	  }
@@ -507,7 +497,8 @@
 
 	const browserActions = {
 	  'LOAD': 'load',
-	  'NAVIGATE': 'navigate'
+	  'NAVIGATE': 'navigate',
+	  'NETWORK_REQUEST': 'network_request'
 	}
 
 	module.exports = browserActions

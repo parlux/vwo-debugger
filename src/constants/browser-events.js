@@ -1,6 +1,7 @@
 const browserActions = {
   'LOAD': 'load',
-  'NAVIGATE': 'navigate'
+  'NAVIGATE': 'navigate',
+  'NETWORK_REQUEST': 'network_request'
 }
 
 module.exports = browserActions

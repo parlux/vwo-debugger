@@ -42,6 +42,6 @@ chrome.runtime.onConnect.addListener(function (devToolsConnection) {
   devToolsConnection.onDisconnect.addListener(function () {
     chrome.runtime.onMessage.removeListener(devToolsListener);
     chrome.webNavigation.onBeforeNavigate.removeListener(navigateListener);
-    chrome.webNavigation.onCompleted.addListener(loadListener);
+    chrome.webNavigation.onCompleted.removeListener(loadListener);
   })
 });

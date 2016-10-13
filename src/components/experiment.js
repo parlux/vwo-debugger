@@ -10,7 +10,6 @@ const ExperimentComponent = () => {
     },
 
     setProps: (data) => {
-      Logger.info(data)
       props.id = data.experiment.id
       props.combiCookie = data.cookies[`_vis_opt_exp_${props.id}_combi`]
       props.inExperiment = props.combiCookie ? true : false
