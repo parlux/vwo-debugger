@@ -1,5 +1,3 @@
-const BrowserActions = require('../constants/browser-events')
-
 class BackgroundPageConnection {
   constructor(backgroundPageConnection) {
     this.callbacks = {}

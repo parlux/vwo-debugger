@@ -52,29 +52,19 @@
 
 	const Logger = __webpack_require__(1)
 	const BackgroundManager = __webpack_require__(4)
+	const InspectedTabManager = __webpack_require__(10)
 	const VwoExperiments = __webpack_require__(5)
 	const Utils = __webpack_require__(3)
 	const BrowserActions = __webpack_require__(9)
 
-	// Setup the connection to the background page
 	const backgroundPageConnection = BackgroundManager.connect()
-	backgroundPageConnection.on(BrowserActions.LOAD, run)
+	backgroundPageConnection.on(BrowserActions.LOAD, renderApp)
 	backgroundPageConnection.on(BrowserActions.NAVIGATE, clear)
 
-	// Run when conversion happens
-	chrome.devtools.network.onRequestFinished.addListener(function (request) {
-	  var vwoConversionGifUrl = 'http://dev.visualwebsiteoptimizer.com/c.gif'
-
-	  if (request.request.url.indexOf(vwoConversionGifUrl) === 0) {
-	    run()
-	  }
-	})
-
-	// Componentize me?
-	const $reload = document.querySelector('#reload')
-	$reload.addEventListener('click', () => {
-	  Logger.info('Reload Click Event')
-	  run()
+	const inspectedTabConnection = InspectedTabManager.connect()
+	inspectedTabConnection.on(BrowserActions.NETWORK_REQUEST, (request) => {
+	  const vwoConversionUrl = 'http://dev.visualwebsiteoptimizer.com/c.gif'
+	  if (request.request.url.includes(vwoConversionUrl)) renderApp()
 	})
 
 	const $clearCookies = document.querySelector('#cookie-clearer')
@@ -101,7 +91,7 @@
 	}
 
 	// I think just contentVille lives here.
-	function run() {
+	function renderApp() {
 	  Logger.info('Running :D')
 	  VwoExperiments().init().then(yum => {
 	    $contentVille.innerHTML = yum
@@ -124,7 +114,7 @@
 	}
 
 	const $contentVille = document.querySelector('#accordion')
-	run()
+	renderApp()
 
 /***/ },
 /* 1 */
@@ -209,22 +199,7 @@
 	  connect: function () {
 	    const connection = chromeExtUtils.connectToBackgroundPage('vwo-debugger')
 	    return new BackgroundPageConnection(connection)
-	  },
-
-	  // setupListeners: function (connection) {
-	  //   // Listen to messages from the background page
-	  //   connection.onMessage.addListener(function (message) {
-	  //     switch (message.action) {
-	  //       case 'reload':
-	  //         Logger.info('Page Load Event')
-	  //         run()
-	  //         break
-	  //       case 'navigate':
-	  //         Logger.info('Page navigation start')
-	  //         break
-	  //     }
-	  //   })
-	  // }
+	  }
 	}
 
 	module.exports = BackgroundManager
@@ -469,9 +444,7 @@
 
 /***/ },
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const BrowserActions = __webpack_require__(9)
+/***/ function(module, exports) {
 
 	class BackgroundPageConnection {
 	  constructor(backgroundPageConnection) {
@@ -502,6 +475,48 @@
 	}
 
 	module.exports = browserActions
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const InspectedTabConnection = __webpack_require__(11)
+
+	const InspectedTabManager = {
+	  connect: function () {
+	    return new InspectedTabConnection()
+	  }
+	}
+
+	module.exports = InspectedTabManager
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const BrowserActions = __webpack_require__(9)
+
+	class BackgroundPageConnection {
+	  constructor() {
+	    this.callbacks = {}
+
+	    chrome.devtools.network.onRequestFinished.addListener(this.onNetworkRequest.bind(this))
+	  }
+
+	  onNetworkRequest(request) {
+	    if (this.callbacks[BrowserActions.NETWORK_REQUEST]) {
+	      this.callbacks[BrowserActions.NETWORK_REQUEST].call(this, request)
+	    }
+	  }
+
+	  on(action, cb) {
+	    this.callbacks[action] = cb
+	  }
+	}
+
+	module.exports = BackgroundPageConnection
 
 
 /***/ }

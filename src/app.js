@@ -6,29 +6,19 @@
 
 const Logger = require('./utils/logger')
 const BackgroundManager = require('./utils/background-manager')
+const InspectedTabManager = require('./utils/inspected-tab-manager')
 const VwoExperiments = require('./components/experiments')
 const Utils = require('./utils/chrome-ext')
 const BrowserActions = require('./constants/browser-events')
 
-// Setup the connection to the background page
 const backgroundPageConnection = BackgroundManager.connect()
-backgroundPageConnection.on(BrowserActions.LOAD, run)
+backgroundPageConnection.on(BrowserActions.LOAD, renderApp)
 backgroundPageConnection.on(BrowserActions.NAVIGATE, clear)
 
-// Run when conversion happens
-chrome.devtools.network.onRequestFinished.addListener(function (request) {
-  var vwoConversionGifUrl = 'http://dev.visualwebsiteoptimizer.com/c.gif'
-
-  if (request.request.url.indexOf(vwoConversionGifUrl) === 0) {
-    run()
-  }
-})
-
-// Componentize me?
-const $reload = document.querySelector('#reload')
-$reload.addEventListener('click', () => {
-  Logger.info('Reload Click Event')
-  run()
+const inspectedTabConnection = InspectedTabManager.connect()
+inspectedTabConnection.on(BrowserActions.NETWORK_REQUEST, (request) => {
+  const vwoConversionUrl = 'http://dev.visualwebsiteoptimizer.com/c.gif'
+  if (request.request.url.includes(vwoConversionUrl)) renderApp()
 })
 
 const $clearCookies = document.querySelector('#cookie-clearer')
@@ -55,7 +45,7 @@ function clear() {
 }
 
 // I think just contentVille lives here.
-function run() {
+function renderApp() {
   Logger.info('Running :D')
   VwoExperiments().init().then(yum => {
     $contentVille.innerHTML = yum
@@ -78,4 +68,4 @@ function run() {
 }
 
 const $contentVille = document.querySelector('#accordion')
-run()
+renderApp()
