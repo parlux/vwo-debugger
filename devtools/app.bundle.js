@@ -298,6 +298,7 @@
 	const ExperimentsComponent = () => {
 	  const methods = {
 	    init: () => {
+	      Logger.info('Experiments#init')
 	      return methods.fetchVwoData()
 	        .then(methods.render)
 	    },
@@ -307,6 +308,7 @@
 	    },
 
 	    render: (vwoData) => {
+	      Logger.info('Experiments#render')
 	      let htmlString = ''
 
 	      for(let experimentId in vwoData.experiments) {
@@ -374,6 +376,7 @@
 	      ]
 
 	      Promise.all(promises).then(values => {
+	        Logger.info('All data1')
 	        const data = values.reduce((combiner, val) => {
 	          Object.assign(combiner, val)
 	          return combiner
@@ -381,9 +384,9 @@
 
 	        Logger.info('All data', data)
 	        resolve(data)
+	      }).catch(function() {
+	        resolve({})
 	      })
-
-	      resolve({})
 	    })
 	  }
 	}
@@ -401,6 +404,7 @@
 
 	  const methods = {
 	    init: (data) => {
+	      Logger.info('Experiment#init')
 	      methods.setProps(data)
 	      return methods.render()
 	    },
@@ -431,6 +435,7 @@
 	    },
 
 	    render: () => {
+	      Logger.info('Render EXPERIMENT')
 	      // Utils.executeCodeInInspectedWindow(`
 	      //   console.log('Clearing VWO cookies')
 	      //   document.cookie.split(';')

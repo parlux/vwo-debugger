@@ -41,6 +41,7 @@ const VwoService = {
       ]
 
       Promise.all(promises).then(values => {
+        Logger.info('All data1')
         const data = values.reduce((combiner, val) => {
           Object.assign(combiner, val)
           return combiner
@@ -48,9 +49,9 @@ const VwoService = {
 
         Logger.info('All data', data)
         resolve(data)
+      }).catch(function() {
+        resolve({})
       })
-
-      resolve({})
     })
   }
 }
