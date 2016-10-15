@@ -1,4 +1,5 @@
 const Experiment = require('../models/experiment')
+const Logger = require('../utils/logger')
 
 const ExperimentComponent = () => {
   let experiment = {}
@@ -36,7 +37,16 @@ const ExperimentComponent = () => {
 
     render: () => {
       const titleClass = experiment.isActive() ? 'bg-success' : ''
+      const variationsClass = experiment.variations().length ? '' : 'hidden'
       const isCollapsed = experiment.isActive() ? 'in' : ''
+
+      let variations = experiment.variations().map(variation => {
+        return '<li>ok</li>'
+      }).join('')
+
+      const goals = experiment.goals.map(goal => {
+        return `<li>${goal.id}</li>`
+      }).join('')
 
       return `
        <div class="panel panel-default">
@@ -48,7 +58,21 @@ const ExperimentComponent = () => {
            </h4>
          </div>
          <div id="collapse${experiment.id}" class="panel-collapse collapse ${isCollapsed}" role="tabpanel">
-           <div class="panel-body">foo</div>
+           <div class="panel-body">
+             <ul class="experiment-details">
+                <li><strong>TYPE:</strong> ${experiment.type}</li>
+                <li class="${variationsClass}"><strong>VARIATIONS:</strong>
+                    <ul class="experiment-details__variations">
+                        ${variations}
+                    </ul>
+                </li>
+                <li><strong>GOALS:</strong>
+                    <ul class="experiment-details__goals">
+                        ${goals}
+                    </ul>
+                </li>
+             </ul>
+           </div>
          </div>
        </div>
      `

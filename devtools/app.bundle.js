@@ -394,6 +394,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const Experiment = __webpack_require__(12)
+	const Logger = __webpack_require__(1)
 
 	const ExperimentComponent = () => {
 	  let experiment = {}
@@ -431,7 +432,16 @@
 
 	    render: () => {
 	      const titleClass = experiment.isActive() ? 'bg-success' : ''
+	      const variationsClass = experiment.variations().length ? '' : 'hidden'
 	      const isCollapsed = experiment.isActive() ? 'in' : ''
+
+	      let variations = experiment.variations().map(variation => {
+	        return '<li>ok</li>'
+	      }).join('')
+
+	      const goals = experiment.goals.map(goal => {
+	        return `<li>${goal.id}</li>`
+	      }).join('')
 
 	      return `
 	       <div class="panel panel-default">
@@ -443,7 +453,21 @@
 	           </h4>
 	         </div>
 	         <div id="collapse${experiment.id}" class="panel-collapse collapse ${isCollapsed}" role="tabpanel">
-	           <div class="panel-body">foo</div>
+	           <div class="panel-body">
+	             <ul class="experiment-details">
+	                <li><strong>TYPE:</strong> ${experiment.type}</li>
+	                <li class="${variationsClass}"><strong>VARIATIONS:</strong>
+	                    <ul class="experiment-details__variations">
+	                        ${variations}
+	                    </ul>
+	                </li>
+	                <li><strong>GOALS:</strong>
+	                    <ul class="experiment-details__goals">
+	                        ${goals}
+	                    </ul>
+	                </li>
+	             </ul>
+	           </div>
 	         </div>
 	       </div>
 	     `
@@ -537,14 +561,35 @@
 	    this.id = data.experiment.id
 	    this.cookies = data.cookies
 	    this.name = data.experiment.name
+	    this.type =data.experiment.type
+	    this.goals = this.goalsArray(data.experiment.goals)
 	  }
 
 	  combiCookie() {
 	    return this.cookies[`_vis_opt_exp_${this.id}_combi`]
 	  }
 
+	  goalCookie(goalId) {
+	    return this.cookies[`_vis_opt_exp_${this.id}_goal_${goalId}`] === '1'
+	  }
+
 	  isActive() {
 	    return (this.combiCookie()) ? true : false
+	  }
+
+	  variations() {
+	    if (this.type === 'TRACK') return []
+	  }
+
+	  goalsArray(goals) {
+	    const goalsArray = []
+	    for (let goalId in goals) {
+	      const goal = goals[goalId]
+	      goal.converted = this.goalCookie(goalId)
+	      goal.id = goalId
+	      goalsArray.push(goal)
+	    }
+	    return goalsArray
 	  }
 	}
 

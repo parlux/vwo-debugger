@@ -102,4 +102,5 @@ main {
 .experiment-details__variations li,
 .experiment-details__goals li {
     display: inline-block;
+    margin: 0 2px;
 }
