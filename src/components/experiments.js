@@ -1,5 +1,6 @@
 const VwoService = require('../services/vwo')
 const Experiment  = require('./experiment')
+const Logger = require('../utils/logger')
 
 const ExperimentsComponent = () => {
   const methods = {
@@ -13,16 +14,18 @@ const ExperimentsComponent = () => {
     },
 
     render: (vwoData) => {
-      const $contentVille = document.querySelector('#accordion')
-
-      let foo = ''
+      let htmlString = ''
 
       for(let experimentId in vwoData.experiments) {
         const experiment = Object.assign({ id: experimentId }, vwoData.experiments[experimentId])
-        foo += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
+        htmlString += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
       }
 
-      return foo
+      if (htmlString === '') {
+        return "Looks like there ain't no VWO goals around town"
+      } else {
+        return htmlString
+      }
     }
   }
 

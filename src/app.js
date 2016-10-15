@@ -47,6 +47,7 @@ function clear() {
 // I think just contentVille lives here.
 function renderApp() {
   Logger.info('Running :D')
+  $contentVille.innerHTML = "Loading..."
   VwoExperiments().init().then(yum => {
     $contentVille.innerHTML = yum
 

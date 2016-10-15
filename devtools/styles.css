@@ -1,14 +1,12 @@
 body {
-    color: #eee;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     text-align: center;
 }
 
-h1, h2, h3, h4, h5, h6, p, div {
-    color: #aaa;
-}
+/* BUTTONS */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 .btn-vwo {
     cursor: pointer;
@@ -23,25 +21,32 @@ h1, h2, h3, h4, h5, h6, p, div {
     transition-property: background, border, color;
 }
 
-.panel-heading.bg-success {
-    background-color: #dff0d8 !important;
-}
+/* HEADER */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 header {
     background-color: #EEEFF1;
-    padding: 25px 0 20px 0;
-    border-bottom: 1px solid #ddd;
+    background-color: #26134D;
+    padding: 15px 0 10px 0;
+    border-bottom: 1px solid #666;
 }
 
+/* MAIN */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 main {
+    background-color: #eee;
     padding-top: 15px;
-    background-color: #00294b;
     flex-grow: 1;
 }
+
+/* LOGOS */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 .logo {
     margin: 0 auto;
     display: block;
+    fill: #fff !important;
 }
 
 .logo__vwo {
@@ -49,14 +54,52 @@ main {
     height: 30px;
 }
 
+.logo__vwo path {
+    fill: #fff;
+}
+
 .logo__debugger {
     display: block;
     height: 15px;
 }
 
-.goal {
-    background-color: #eee;
-    padding: 3px 6px;
-    border-radius: 3px;
-    border: 1px solid #e3e3e3;
+/* PANELS */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.panel-heading {
+    color: #999 !important;
+}
+
+.panel-heading.bg-success {
+    background-color: #BF3078 !important;
+    color: #fff !important;
+}
+
+.panel-heading small {
+    color: red;
+}
+
+/* EXPERIMENT */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.experiment-details,
+.experiment-details__variations,
+.experiment-details__goals{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.experiment-details li + li {
+    margin-top: 3px;
+}
+
+.experiment-details__variations,
+.experiment-details__goals {
+    display: inline-block;
+}
+
+.experiment-details__variations li,
+.experiment-details__goals li {
+    display: inline-block;
 }

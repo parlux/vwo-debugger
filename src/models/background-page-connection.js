@@ -1,3 +1,5 @@
+const Logger = require('../utils/logger')
+
 class BackgroundPageConnection {
   constructor(backgroundPageConnection) {
     this.callbacks = {}
@@ -5,10 +7,12 @@ class BackgroundPageConnection {
   }
 
   onIncomingMessage(message) {
+    Logger.info('message', message)
     if (this.callbacks[message.action]) this.callbacks[message.action].call(this)
   }
 
   on(action, cb) {
+    Logger.info('action', action)
     this.callbacks[action] = cb
   }
 }

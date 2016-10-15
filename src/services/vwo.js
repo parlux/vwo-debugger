@@ -49,6 +49,8 @@ const VwoService = {
         Logger.info('All data', data)
         resolve(data)
       })
+
+      resolve({})
     })
   }
 }

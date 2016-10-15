@@ -52,10 +52,10 @@
 
 	const Logger = __webpack_require__(1)
 	const BackgroundManager = __webpack_require__(4)
-	const InspectedTabManager = __webpack_require__(10)
-	const VwoExperiments = __webpack_require__(5)
+	const InspectedTabManager = __webpack_require__(6)
+	const VwoExperiments = __webpack_require__(9)
 	const Utils = __webpack_require__(3)
-	const BrowserActions = __webpack_require__(9)
+	const BrowserActions = __webpack_require__(8)
 
 	const backgroundPageConnection = BackgroundManager.connect()
 	backgroundPageConnection.on(BrowserActions.LOAD, renderApp)
@@ -93,6 +93,7 @@
 	// I think just contentVille lives here.
 	function renderApp() {
 	  Logger.info('Running :D')
+	  $contentVille.innerHTML = "Loading..."
 	  VwoExperiments().init().then(yum => {
 	    $contentVille.innerHTML = yum
 
@@ -193,7 +194,7 @@
 
 	const chromeExtUtils = __webpack_require__(3)
 	const Logger = __webpack_require__(1)
-	const BackgroundPageConnection = __webpack_require__(8)
+	const BackgroundPageConnection = __webpack_require__(5)
 
 	const BackgroundManager = {
 	  connect: function () {
@@ -209,8 +210,90 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const VwoService = __webpack_require__(6)
-	const Experiment  = __webpack_require__(7)
+	const Logger = __webpack_require__(1)
+
+	class BackgroundPageConnection {
+	  constructor(backgroundPageConnection) {
+	    this.callbacks = {}
+	    backgroundPageConnection.onMessage.addListener(this.onIncomingMessage.bind(this))
+	  }
+
+	  onIncomingMessage(message) {
+	    Logger.info('message', message)
+	    if (this.callbacks[message.action]) this.callbacks[message.action].call(this)
+	  }
+
+	  on(action, cb) {
+	    Logger.info('action', action)
+	    this.callbacks[action] = cb
+	  }
+	}
+
+	module.exports = BackgroundPageConnection
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const InspectedTabConnection = __webpack_require__(7)
+
+	const InspectedTabManager = {
+	  connect: function () {
+	    return new InspectedTabConnection()
+	  }
+	}
+
+	module.exports = InspectedTabManager
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const BrowserActions = __webpack_require__(8)
+
+	class BackgroundPageConnection {
+	  constructor() {
+	    this.callbacks = {}
+
+	    chrome.devtools.network.onRequestFinished.addListener(this.onNetworkRequest.bind(this))
+	  }
+
+	  onNetworkRequest(request) {
+	    if (this.callbacks[BrowserActions.NETWORK_REQUEST]) {
+	      this.callbacks[BrowserActions.NETWORK_REQUEST].call(this, request)
+	    }
+	  }
+
+	  on(action, cb) {
+	    this.callbacks[action] = cb
+	  }
+	}
+
+	module.exports = BackgroundPageConnection
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	const browserActions = {
+	  'LOAD': 'load',
+	  'NAVIGATE': 'navigate',
+	  'NETWORK_REQUEST': 'network_request'
+	}
+
+	module.exports = browserActions
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const VwoService = __webpack_require__(10)
+	const Experiment  = __webpack_require__(11)
+	const Logger = __webpack_require__(1)
 
 	const ExperimentsComponent = () => {
 	  const methods = {
@@ -224,16 +307,18 @@
 	    },
 
 	    render: (vwoData) => {
-	      const $contentVille = document.querySelector('#accordion')
-
-	      let foo = ''
+	      let htmlString = ''
 
 	      for(let experimentId in vwoData.experiments) {
 	        const experiment = Object.assign({ id: experimentId }, vwoData.experiments[experimentId])
-	        foo += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
+	        htmlString += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
 	      }
 
-	      return foo
+	      if (htmlString === '') {
+	        return "Looks like there ain't no VWO goals around town"
+	      } else {
+	        return htmlString
+	      }
 	    }
 	  }
 
@@ -243,7 +328,7 @@
 	module.exports = ExperimentsComponent
 
 /***/ },
-/* 6 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	const Logger = __webpack_require__(1)
@@ -297,6 +382,8 @@
 	        Logger.info('All data', data)
 	        resolve(data)
 	      })
+
+	      resolve({})
 	    })
 	  }
 	}
@@ -304,7 +391,7 @@
 	module.exports = VwoService
 
 /***/ },
-/* 7 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	const Logger = __webpack_require__(1)
@@ -425,7 +512,7 @@
 	         <div class="panel-heading ${titleClass}" id="headingOne">
 	           <h4 class="panel-title">
 	             <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${props.id}">
-	                ${title}
+	                ${props.id}: ${title}
 	             </a>
 	           </h4>
 	         </div>
@@ -441,83 +528,6 @@
 	}
 
 	module.exports = ExperimentComponent
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	class BackgroundPageConnection {
-	  constructor(backgroundPageConnection) {
-	    this.callbacks = {}
-	    backgroundPageConnection.onMessage.addListener(this.onIncomingMessage.bind(this))
-	  }
-
-	  onIncomingMessage(message) {
-	    if (this.callbacks[message.action]) this.callbacks[message.action].call(this)
-	  }
-
-	  on(action, cb) {
-	    this.callbacks[action] = cb
-	  }
-	}
-
-	module.exports = BackgroundPageConnection
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	const browserActions = {
-	  'LOAD': 'load',
-	  'NAVIGATE': 'navigate',
-	  'NETWORK_REQUEST': 'network_request'
-	}
-
-	module.exports = browserActions
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const InspectedTabConnection = __webpack_require__(11)
-
-	const InspectedTabManager = {
-	  connect: function () {
-	    return new InspectedTabConnection()
-	  }
-	}
-
-	module.exports = InspectedTabManager
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const BrowserActions = __webpack_require__(9)
-
-	class BackgroundPageConnection {
-	  constructor() {
-	    this.callbacks = {}
-
-	    chrome.devtools.network.onRequestFinished.addListener(this.onNetworkRequest.bind(this))
-	  }
-
-	  onNetworkRequest(request) {
-	    if (this.callbacks[BrowserActions.NETWORK_REQUEST]) {
-	      this.callbacks[BrowserActions.NETWORK_REQUEST].call(this, request)
-	    }
-	  }
-
-	  on(action, cb) {
-	    this.callbacks[action] = cb
-	  }
-	}
-
-	module.exports = BackgroundPageConnection
-
 
 /***/ }
 /******/ ]);

@@ -116,7 +116,7 @@ const ExperimentComponent = () => {
          <div class="panel-heading ${titleClass}" id="headingOne">
            <h4 class="panel-title">
              <a class='collapsed' role="button" data-toggle="collapse" href="#collapse${props.id}">
-                ${title}
+                ${props.id}: ${title}
              </a>
            </h4>
          </div>
