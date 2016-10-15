@@ -17,7 +17,7 @@ const ExperimentsComponent = () => {
 
       for(let experimentId in vwoData.experiments) {
         const experiment = Object.assign({ id: experimentId }, vwoData.experiments[experimentId])
-        htmlString += Experiment().init({ experiment, cookies: vwoData.vwoCookies, location: vwoData.location })
+        htmlString += Experiment().init({ experiment, cookies: vwoData.vwoCookies })
       }
 
       if (htmlString === '') {
