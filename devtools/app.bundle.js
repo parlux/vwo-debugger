@@ -293,12 +293,10 @@
 
 	const VwoService = __webpack_require__(10)
 	const Experiment  = __webpack_require__(11)
-	const Logger = __webpack_require__(1)
 
 	const ExperimentsComponent = () => {
 	  const methods = {
 	    init: () => {
-	      Logger.info('Experiments#init')
 	      return methods.fetchVwoData()
 	        .then(methods.render)
 	    },
@@ -308,7 +306,6 @@
 	    },
 
 	    render: (vwoData) => {
-	      Logger.info('Experiments#render')
 	      let htmlString = ''
 
 	      for(let experimentId in vwoData.experiments) {
@@ -395,16 +392,13 @@
 
 /***/ },
 /* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const Logger = __webpack_require__(1)
+/***/ function(module, exports) {
 
 	const ExperimentComponent = () => {
 	  const props = {}
 
 	  const methods = {
 	    init: (data) => {
-	      Logger.info('Experiment#init')
 	      methods.setProps(data)
 	      return methods.render()
 	    },
@@ -435,7 +429,6 @@
 	    },
 
 	    render: () => {
-	      Logger.info('Render EXPERIMENT')
 	      // Utils.executeCodeInInspectedWindow(`
 	      //   console.log('Clearing VWO cookies')
 	      //   document.cookie.split(';')

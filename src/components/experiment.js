@@ -1,11 +1,8 @@
-const Logger = require('../utils/logger')
-
 const ExperimentComponent = () => {
   const props = {}
 
   const methods = {
     init: (data) => {
-      Logger.info('Experiment#init')
       methods.setProps(data)
       return methods.render()
     },
@@ -36,7 +33,6 @@ const ExperimentComponent = () => {
     },
 
     render: () => {
-      Logger.info('Render EXPERIMENT')
       // Utils.executeCodeInInspectedWindow(`
       //   console.log('Clearing VWO cookies')
       //   document.cookie.split(';')

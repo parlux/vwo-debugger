@@ -1,11 +1,9 @@
 const VwoService = require('../services/vwo')
 const Experiment  = require('./experiment')
-const Logger = require('../utils/logger')
 
 const ExperimentsComponent = () => {
   const methods = {
     init: () => {
-      Logger.info('Experiments#init')
       return methods.fetchVwoData()
         .then(methods.render)
     },
@@ -15,7 +13,6 @@ const ExperimentsComponent = () => {
     },
 
     render: (vwoData) => {
-      Logger.info('Experiments#render')
       let htmlString = ''
 
       for(let experimentId in vwoData.experiments) {
