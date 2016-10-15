@@ -34,9 +34,10 @@ chrome.runtime.onConnect.addListener(function (devToolsConnection) {
   }
 
   // Listens to messages sent from the devtools panel
-  chrome.runtime.onMessage.addListener(devToolsListener);
-  chrome.webNavigation.onBeforeNavigate.addListener(navigateListener);
-  chrome.webNavigation.onCompleted.addListener(loadListener);
+  // Even in a new tab it keeps adding listeners :/
+  if (!chrome.runtime.onMessage.hasListeners()) chrome.runtime.onMessage.addListener(devToolsListener);
+  if (!chrome.webNavigation.onBeforeNavigate.hasListeners()) chrome.webNavigation.onBeforeNavigate.addListener(navigateListener);
+  if (!chrome.webNavigation.onCompleted.hasListeners()) chrome.webNavigation.onCompleted.addListener(loadListener);
 
   // Remove listeners
   devToolsConnection.onDisconnect.addListener(function () {
